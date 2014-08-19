@@ -33,7 +33,7 @@ import ustar_filtering_Reichsteinv2 as ustar
 import FFNET_Fre_v5 as Fre_ANN
 import GPP_calc_v1b as GPP
 import ISAACfingerprintv2 as  Fingerprints
-import Diagnostics_Results_v5c as Diagnostics
+import Diagnostics_Results_v5d as Diagnostics
 
 #Modules for data formatting and output
 import REddyProc_dataout_v2a as REddyProc
@@ -70,6 +70,8 @@ def main():
     #Read in frequency of fluxdata
     FluxFreq = cf['Site']['FluxFreq']
     altitude = cf['Site']['Altitude']
+    Ws_variable_name = cf['Options']['Ws_variable_name']
+    
     print "Start advanced processing for "+Site_ID
     print "Site coordinates latitude "+str(Tower_Lat)+" and longitude "+str(Tower_Long)
     
@@ -164,7 +166,7 @@ def main():
 	#Define the variable names to be processed.  These are static but may change with Level of input data or previously processed data
 	#Change if necessary
 	AWS_variables=['Ta','WS','P','Ah']
-	Flux_variables=['Ta','Ws_CSAT','ps','Ah']
+	Flux_variables=['Ta',Ws_variable_name,'ps','Ah']
 	construct=list(xrange(len(AWS_variables)))
 	for index, items in enumerate(AWS_variables):
 	    print "Calling construct for variable "+items
@@ -287,12 +289,13 @@ def main():
 	#Set number of iterations for ANN
     	iterations=500
 	#Call as many times as needed for each variable or set of variables
-	list_in=['Fsd_Con','VPD_Con','Sws_Con','Ts_Con','Ws_CSAT_Con','250m_16_days_EVI_new_interp']
+	
+	list_in=['Fsd_Con','VPD_Con','Sws_Con','Ts_Con',Ws_variable_name+'_Con','250m_16_days_EVI_new_interp']
 	target=['Fc']
 	#Call ANN routines
 	New_combined=ANN.ANN_gapfill(myBaseforResults,New_combined,Site_ID,list_in,target,iterations,frequency,Use_Fc_Storage)
     
-	list_in=['Fsd_Con','VPD_Con','Sws_Con','Ts_Con','Ws_CSAT_Con','250m_16_days_EVI_new_interp']
+	list_in=['Fsd_Con','VPD_Con','Sws_Con','Ts_Con',Ws_variable_name+'_Con','250m_16_days_EVI_new_interp']
 	target=['Fe','Fh','Fg']
 	New_combined=ANN.ANN_gapfill(myBaseforResults,New_combined,Site_ID,list_in,target,iterations,frequency,Use_Fc_Storage)
 	#Check dataframe for duplicates, set freq as required and pad as necessary and sort.  Call function
@@ -382,10 +385,9 @@ def main():
 	New_combined= pd.read_pickle(DFfilename) 
 	# set of variable list to do diagnostics
 	list_in=['Sws_Con','Ts_Con']
-	Ws_label='Ws_CSAT'
 	do_results=True
 	#Call ANN routines # This time need Lat and long for solar calcs to get sunrise and set times
-	Diagnostics.basic_diags(myBaseforResults,New_combined,Site_ID,list_in, Ws_label,do_results,Rain_label_variable_to_fill)
+	Diagnostics.basic_diags(myBaseforResults,New_combined,Site_ID,list_in, Ws_variable_name,do_results,Rain_label_variable_to_fill)
 
     if cf['Options']['Output_yearly_EddyProc_files']=='Yes':      
 	#Here do diagnostics from gap filling

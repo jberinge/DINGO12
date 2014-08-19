@@ -9,7 +9,7 @@ from scipy.optimize import curve_fit
 #Import custom code for processing
 import Gap_Fill_climatology_v2 as gap_fill_climatology
 import meteorologicalfunctions as metfuncs
-import gapfill_utilities_v2 as gf
+import gapfill_utilities_v3 as gf
 import pdb
 
 ###### Functions ######
