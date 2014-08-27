@@ -356,7 +356,7 @@ def Fsd_gapfill(variable_to_fill,myBaseforResults,mypathforAWAPdata,FileName_AWA
         DaySum_DF[climatol_S.name]=climatol_S
         var_list.append(climatol_S.name)
     
-        # Compare fill variables to observations (i.e. climatology and external data sources) and rank
+        # Compare fill variables (i.e. climatology and external data sources) to observations and rank
         RMSE_var_list=var_list[1:]
         RMSE_results_df=pd.DataFrame(index=RMSE_var_list,columns=['RMSE'])
         for i in RMSE_var_list:
@@ -366,9 +366,10 @@ def Fsd_gapfill(variable_to_fill,myBaseforResults,mypathforAWAPdata,FileName_AWA
         # Plot regression results for lowest RMSE variable
         best_var=RMSE_results_df.index[0]
         temp_DF=pd.DataFrame({'x':DaySum_DF[best_var],'y':DaySum_DF[var_list[0]]}).dropna(how='any',axis=0)
-        plot_linear_reg(temp_DF['x'],temp_DF['y'],reg_results_df['slope'].ix[best_var],reg_results_df['intcpt'].ix[best_var],
-                        reg_results_df['rsq'].ix[best_var],reg_results_df['pval'].ix[best_var],reg_results_df['se'].ix[best_var],
-                        best_var+' solar_exposure_day','Tower Solar_obs',OutputPath_DailyData,Site_ID)
+        if len(var_list)>1:
+            plot_linear_reg(temp_DF['x'],temp_DF['y'],reg_results_df['slope'].ix[best_var],reg_results_df['intcpt'].ix[best_var],
+                            reg_results_df['rsq'].ix[best_var],reg_results_df['pval'].ix[best_var],reg_results_df['se'].ix[best_var],
+                            best_var+' solar_exposure_day','Tower Solar_obs',OutputPath_DailyData,Site_ID)
         
         # Stack the corrected series together (i.e. progressively filling gaps) in order of (minimum) RMSE rank
         DaySum_DF['combined_est']=np.nan

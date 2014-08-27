@@ -1513,7 +1513,7 @@ def basic_diags(myBaseforResults,New_combined,Site_id,list_in,Ws_label,do_result
     
     list_in=['Fc','Fe','Fh','Fg']
     Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)
-    list_in=['Fsu','Fsd']
+    list_in=['Fsu','Fsd','Flu','Fld']
     Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)
     list_in=['Ta','Ah',Ws_label]
     Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)    
