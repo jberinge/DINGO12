@@ -24,7 +24,7 @@ import netCDF4
 
 def excel_to_pydate(exceldate,Site_ID):
     # datemode: 0 for 1900-based, 1 for 1904-based
-    if Site_ID=="AliceSprings":
+    if Site_ID in ["AliceSprings","TiTree"]:
         datemode=1
     else:
         datemode=0

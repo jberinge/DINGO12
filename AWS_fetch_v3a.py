@@ -169,7 +169,7 @@ def get_AWS_data(BoMfilename,Site_ID,Tower_Lat,Tower_Long,mypathforAWSdata,myBas
         #Here some AWS stations dont have all the data (like P) and this causes program to crash
         #So for now have an excludelist for station ID.  Should program this later to check for valid
         #data from each column of each station.
-        excludeAWS=['081049','080091','088164','088051','072161','086351','066212','067119','067117','066059','066194','066062','070349','088109','086351','004021']
+        excludeAWS=['081049','080091','088164','088051','072161','086371','066212','067119','067117','066059','066194','066062','070349','088109','086351','004021','097024','094191','094220','086104']
 
         if BoM_ID in excludeAWS:
                 haveAWS=False

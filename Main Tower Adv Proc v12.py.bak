@@ -9,6 +9,7 @@ import datetime as dt
 import pickle
 from configobj import ConfigObj
 import Tkinter, tkFileDialog
+import numpy as np
 
 #Import custom code modules required for adv processing
 import AWS_fetch_v3a as Fetch_AWS
@@ -21,19 +22,20 @@ import BIOS_nc_fetch_v5 as CABLE_nc_fetch
 import CABLE_gapfil_var_v4a as CABLE_gapfil_var
 import MODIS_ingest_and_interpolate_with_flux_tower_NC_file_v5b as MODIS
 import Rain_gapfill_v6 as Rainstuff
-import IncomingSW_gapfillv19 as Shortwave_incoming
-import OutgoingSW_gapfillv16a as Shortwave_outgoing
-import IncomingLW_gapfillv21 as Longwave_incoming
-import OutgoingLW_gapfillv13 as Longwave_outgoing
+import IncomingSW_gapfill as Shortwave_incoming
+import OutgoingSW_gapfill as Shortwave_outgoing
+import IncomingLW_gapfill as Longwave_incoming
+import OutgoingLW_gapfill as Longwave_outgoing
 import Net_radiation_v1 as Net_radiation
 import Light_response_curve_v25b as Fre_Lasslop
 
 import FFNET_v5a as ANN
 import ustar_filtering_Reichsteinv2 as ustar
-import FFNET_Fre_v5 as Fre_ANN
-import GPP_calc_v1b as GPP
+import FFNET_Fre_v5a as Fre_ANN
+import GPP_calc_v1c as GPP
 import ISAACfingerprintv2 as  Fingerprints
 import Diagnostics_Results_v5d as Diagnostics
+import QCCPD_DINGO as CPD
 
 #Modules for data formatting and output
 import REddyProc_dataout_v2a as REddyProc
@@ -51,7 +53,7 @@ def dataframe_check(Dataframe, FluxFreq):
 
 def main():
     #Set version ID
-    versionID="v11f"
+    versionID="v12"
     #Define string of Rainfall name.
     Rain_label_variable_to_fill = 'Precip'
     
@@ -71,7 +73,10 @@ def main():
     FluxFreq = cf['Site']['FluxFreq']
     altitude = cf['Site']['Altitude']
     Ws_variable_name = cf['Options']['Ws_variable_name']
-    
+    Ustar_filter_type = cf['Options']['Ustar_filter_type']
+    Ustar_Barr_calculate= cf['Options']['Ustar_Barr_calculate']
+    Ustar_Barr_bootstraps= int(cf['Options']['Ustar_Barr_bootstraps'])
+        
     print "Start advanced processing for "+Site_ID
     print "Site coordinates latitude "+str(Tower_Lat)+" and longitude "+str(Tower_Long)
     
@@ -274,7 +279,7 @@ def main():
 	New_combined.to_pickle(DFfilename) 
 	New_combined.to_csv(CSVfilename)    
     
-    #Now Perform the ANN gap filling.  Call the routine. It is coded so that it can accept multiple inputs and outputs
+    #Now Perform the ANN gap filling for Fc, Fh, Fe, Fg.  Call the routine. It is coded so that it can accept multiple inputs and outputs
     if cf['Options']['Gapfill_fluxes_ANN']=='Yes':      
     	#The basic model is an tmlgraph((number_of_inputs,24,16,number_of_outputs))  # Creates multilayer network full connectivity list
 	# Training is done using TNC learning.  If that doesnt work well you can change the actual ANN model in the routine
@@ -304,7 +309,23 @@ def main():
 	New_combined.to_pickle(DFfilename) 
 	New_combined.to_csv(CSVfilename)  
 	
-    if cf['Options']['Ustar_filter']=='Yes':   
+    if cf['Options']['Ustar_Barr_calculate']=='Yes':   	
+	print "Starting Barr et al.  Get some coffee!"
+	Fluxfilepath=mypathforFluxdata+'/'+cf['Files']['FLUXfilename']
+	CPD.CPD_main(Fluxfilepath, myBaseforResults, Ustar_Barr_bootstraps)
+	# Now take the results and apply that to the dataframe and add a new column of Barr ustar for each year.
+	annual_stats= pd.read_csv(myBaseforResults+"/CPD/Results/annual_statistics.csv",index_col=0)
+	New_combined= pd.read_pickle(DFfilename) 
+	New_combined['ustar_Barr'] = np.nan
+	
+	for i in annual_stats.index:
+	    New_combined['ustar_Barr'].ix[str(i)]=annual_stats['ustar_mean'].ix[i]
+	
+	#Save new data
+	New_combined.to_pickle(DFfilename) 
+	New_combined.to_csv(CSVfilename)
+
+    if cf['Options']['Ustar_Reichstein_calculate']=='Yes':   
 	#For the u*-filtering the data set (storage corrected flux is assumed) is split into 6 temperature classes of the same sample size 
 	#(according to quantiles) and for each temperature class the set is split into 20 u*-classes. The threshold is defined as the u*-class 
 	#where the night-time flux reaches more than 95% of the average flux at the higher u*-classes. The threshold is only accepted if for the 
@@ -328,6 +349,7 @@ def main():
 	#Here calculate Fre (Re) using the ANN networks as above.  Code is the same except use nightime values
 	# and ustar filtered data to traing to get Re=Fc
 	print "Starting Fre calculation using ANN"
+	print "Using the following ustar threshold " + str(Ustar_filter_type)
 	frequency = cf['Options']['ANN_gapfill_freq']
 	New_combined= pd.read_pickle(DFfilename) 
 	#Set number of iterations for ANN
@@ -341,7 +363,7 @@ def main():
 	list_in=['Sws_Con','Ts_Con','Ta_Con','250m_16_days_EVI_new_interp']
 	list_out=['Fc']
 	#Call ANN routines # This time need Lat and long for solar calcs to get sunrise and set times
-	New_combined=Fre_ANN.Fre_ANN_gapfill(myBaseforResults,New_combined,Site_ID,list_in,list_out,iterations,Tower_Lat,Tower_Long,frequency,evening,min_threshold,max_threshold)
+	New_combined=Fre_ANN.Fre_ANN_gapfill(myBaseforResults,New_combined,Site_ID,list_in,list_out,iterations,Tower_Lat,Tower_Long,frequency,evening,min_threshold,max_threshold,Ustar_filter_type)
 	#Check dataframe for duplicates, set freq as required and pad as necessary and sort.  Call function
 	New_combined = dataframe_check(New_combined, FluxFreq)  
 	#Save new data
@@ -387,7 +409,7 @@ def main():
 	list_in=['Sws_Con','Ts_Con']
 	do_results=True
 	#Call ANN routines # This time need Lat and long for solar calcs to get sunrise and set times
-	Diagnostics.basic_diags(myBaseforResults,New_combined,Site_ID,list_in, Ws_variable_name,do_results,Rain_label_variable_to_fill)
+	Diagnostics.basic_diags(myBaseforResults,New_combined,Site_ID,list_in, Ws_variable_name,do_results,Rain_label_variable_to_fill,versionID)
 
     if cf['Options']['Output_yearly_EddyProc_files']=='Yes':      
 	#Here do diagnostics from gap filling

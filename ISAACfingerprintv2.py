@@ -31,8 +31,8 @@ def plot_fingerprint(data,xlabel=None,sub=[1,1,1],extent=None,ticks=None):
     if sub[2] != 1: plt.setp(ax.get_yticklabels(), visible=False)
 
 
-def fingerprint_plots(myBaseforResults,New_combined,Site_ID,CFname):
-    print "Start fingerprint plots"
+def fingerprint_plots(myBaseforResults,New_combined,Site_ID,CFname,versionID):
+    print "Start fingerprint plots "
     #Check for place to put results - does it exist? If not create
     if not os.path.isdir(myBaseforResults):
 	os.mkdir(myBaseforResults)
@@ -99,7 +99,7 @@ def fingerprint_plots(myBaseforResults,New_combined,Site_ID,CFname):
 	    label = VarName + ' (' + units + ')'
 	    plot_fingerprint(data_daily,xlabel=label,sub=[1,nPlots,n],extent=[0,24,sd,ed],ticks=ticks)
     
-	pngname = mypathforResults+'/Fingerprint plots for '+list_string+' at '+Site_ID+'.png'
+	pngname = mypathforResults+'/Fingerprint plots for '+list_string+' at '+Site_ID + '_' + versionID+'.png'
 	fig.savefig(pngname,format='png')
     
     plt.draw()

@@ -39,7 +39,7 @@ def get_timezone_info(latitude,longitude,currentdate):
     
 	#Note in v3a we send the query the date and time during winter (2013/07/01) so that the timezone returned is not daylight saving
     url="http://api.askgeo.com/v1/841/9d6d6265d142bb57d292df6b2c1c7a7c1a4b78f2dd3734f475f6abf698bd0c52/query.xml?points="+str(latitude)+"%2C"+str(longitude)+"&databases=Point%2CTimeZone%2CAstronomy&dateTime="+str(currentdate)
-    #Attempt to get web data
+    #Attempt to get web data.  Give three goes before giving an error.
     try:
         result = urllib2.urlopen(url)
         #Parse the returned XML
@@ -49,8 +49,41 @@ def get_timezone_info(latitude,longitude,currentdate):
         a= tree.find('.//Astronomy')
         b= tree.find(".//TimeZone")
     except urllib2.URLError, e:
-        print "Couldnt get the data from the web API"
-        handleError(e)
+        try:
+	    print " Failed 1st time trying web API trying again in 30 seconds"
+	    time.sleep(100)
+	    result = urllib2.urlopen(url)
+	    #Parse the returned XML
+	    tree = ET.parse(result)
+	    root = tree.getroot()
+	    #Look for the following elements
+	    a= tree.find('.//Astronomy')
+	    b= tree.find(".//TimeZone")       
+	except urllib2.URLError, e:
+	    try:
+		print " Failed 2nd time trying web API trying again in 30 seconds"
+		time.sleep(500)
+		result = urllib2.urlopen(url)
+		#Parse the returned XML
+		tree = ET.parse(result)
+		root = tree.getroot()
+		#Look for the following elements
+		a= tree.find('.//Astronomy')
+		b= tree.find(".//TimeZone")
+	    except urllib2.URLError, e:
+		try:
+		    print " Failed 3rd time trying web API trying again in 30 seconds"
+		    time.sleep(1000)
+		    result = urllib2.urlopen(url)
+		    #Parse the returned XML
+		    tree = ET.parse(result)
+		    root = tree.getroot()
+		    #Look for the following elements
+		    a= tree.find('.//Astronomy')
+		    b= tree.find(".//TimeZone")   		
+		except urllib2.URLError, e:
+		    print "Couldnt get the data from the web API. Tried 4 times"
+		    handleError(e)
     
     #Start formatting the returned element to put into dictionary  
     tempTimeZonelist = ET.tostring(b)
@@ -74,24 +107,24 @@ def get_timezone_info(latitude,longitude,currentdate):
     for entry in Astronomylist:
         key, val = entry.split('=')
         Astronomydic[key] = val
-    
-    #get the variable we need from the list
-    print "Data from Timezone Database"
-    print "CurrentOffsetMs of Time Zone",TimeZonedic.get('CurrentOffsetMs')
-    print "TimeZoneId",TimeZonedic.get('TimeZoneId')
-    print "WindowsStandardName",TimeZonedic.get('WindowsStandardName')
-    print "ShortName",TimeZonedic.get('ShortName')
-    print "Is currently daylight savings ",TimeZonedic.get('InDstNow')
-    print
-    print "Data from Astronomy Database"
-    print "CurrentDateTimeIso8601", Astronomydic.get('CurrentDateTimeIso8601')
-    print "TodaySolarNoonUtcMsecs", Astronomydic.get('TodaySolarNoonUtcMsecs')    
-
+	
     #Convert timezone to hours
     timezone_str= TimeZonedic.get('CurrentOffsetMs')
     timezone_str = timezone_str.replace('\"','')
     timezone=(float(timezone_str))/1000/60/60
-    print "Timezone (hrs):  ",timezone
+    
+    #get the variable we need from the list
+    #PRINT THE VARIABLES WE WANT.  At the moment just a selection
+    print "------------Data from Timezone Database"
+    #print "CurrentOffsetMs of Time Zone",TimeZonedic.get('CurrentOffsetMs')
+    #print "TimeZoneId",TimeZonedic.get('TimeZoneId')
+    print "WindowsStandardName ",TimeZonedic.get('WindowsStandardName') + ",  " + str(timezone) + "   (hrs)"
+    #print "ShortName",TimeZonedic.get('ShortName')
+    #print "Is currently daylight savings ",TimeZonedic.get('InDstNow')
+    #print "------------Data from Astronomy Database"
+    #print "CurrentDateTimeIso8601", Astronomydic.get('CurrentDateTimeIso8601')
+    print "TodaySolarNoonUtcMsecs", Astronomydic.get('TodaySolarNoonUtcMsecs')    
+    print ""
     
     #return only time zone but can pass anything back
     return (timezone,TimeZonedic.get('InDstNow'))

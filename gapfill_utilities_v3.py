@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import datetime as dt
+import pdb
 
 # Requires single pandas series and string for climatology averaging interval
 def fill_daily(S1,groupby_string):
@@ -40,10 +41,16 @@ def fill_daily(S1,groupby_string):
     DF[var_name+'_climatol']=DF[var_name+'_y']
     DF[var_name+'_climatol']=DF[var_name+'_climatol'].interpolate()
     DF[var_name+'_climatol']=DF[var_name+'_climatol'].fillna(method='bfill')
-    var_name=var_name+'_climatol'
     
-    S=DF[var_name]
-    S.name=var_name
-    
-    return DF[var_name]
+    return DF[var_name+'_climatol']
                                                                                   
+def RMSE(obs_S,est_df):
+    
+    RMSE_df=pd.DataFrame(index=est_df.columns,columns=['RMSE'])
+    
+    for i in RMSE_df.index:
+        RMSE_df.ix[i]=round(np.sqrt(((obs_S-est_df[i])**2).mean()),3)
+    RMSE_df.sort('RMSE',inplace=True)
+    
+    return RMSE_df
+        

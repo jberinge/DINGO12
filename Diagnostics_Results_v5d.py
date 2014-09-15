@@ -77,7 +77,7 @@ def smooth(x,window_len=11,window='hanning'):
     y=np.convolve(w/w.sum(),s,mode='valid')
     return y
 
-def Doplots_diurnal(mypathforResults,PlottingDF,variable_to_fill, Site_ID,units,item):
+def Doplots_diurnal(mypathforResults,PlottingDF,variable_to_fill, Site_ID,units,item,versionID):
     ANN_label=str(item+"_NN")     #Do Monthly Plot
     print "Doing diurnal plot for month "
     #Do Diurnal Plots for all 12 months
@@ -198,14 +198,14 @@ def Doplots_diurnal(mypathforResults,PlottingDF,variable_to_fill, Site_ID,units,
     
     
     figure(1)
-    pl.suptitle('ANN ensemble diurnal average for variable '+item+' at '+Site_ID)
+    pl.suptitle('ANN ensemble diurnal average for variable '+item+' at '+Site_ID+ 'for' +versionID)
     pl.subplots_adjust(top=0.85)
     pl.tight_layout()  
-    pl.savefig(mypathforResults+'/ANN ensemble diurnal average for variable '+item+' at '+Site_ID)
+    pl.savefig(mypathforResults+'/ANN ensemble diurnal average for variable '+item+' at '+Site_ID+'_'+versionID)
     #pl.show() 
     pl.close()
 
-def Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq):   
+def Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID):   
    
     print "Doing Mean plots for "+Site_ID
     #create a string of the items to be plotted to be used later to save filename
@@ -270,14 +270,14 @@ def Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list
 	datemax = dt.date(ydata.max().year+1, 1, 1)
 	ax.set_xlim(datemin, datemax)
     
-    pl.suptitle('Mean plots for for '+list_string+ ' at '+Site_ID+ ' freq ' + str(plot_freq))  
+    pl.suptitle('Mean plots for for '+list_string+ ' at '+Site_ID+ ' freq ' + str(plot_freq)+'_'+versionID)  
     
     #pl.savefig(pdf, format='pdf')
-    pl.savefig(mypathforResults+'/Mean plots for '+list_string+ ' at '+Site_ID + ' freq ' + str(plot_freq))
+    pl.savefig(mypathforResults+'/Mean plots for '+list_string+ ' at '+Site_ID + ' freq ' + str(plot_freq)+'_'+versionID)
     #pl.show()
     pl.close()    
     
-def Doplots_at_daily(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq):   
+def Doplots_at_daily(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID):   
    
     print "Doing Mean plots for "+Site_ID
     #create a string of the items to be plotted to be used later to save filename
@@ -339,15 +339,15 @@ def Doplots_at_daily(mypathforResults,myBaseforResults,New_combined, Site_ID,lis
 	datemax = dt.date(ydata.max().year+1, 1, 1)
 	ax.set_xlim(datemin, datemax)
     
-    pl.suptitle('Mean plots for for '+list_string+ ' at '+Site_ID+ ' freq ' + str(plot_freq))  
+    pl.suptitle('Mean plots for for '+list_string+ ' at '+Site_ID+ ' freq ' + str(plot_freq)+'_'+versionID)  
     
     #pl.savefig(pdf, format='pdf')
-    pl.savefig(mypathforResults+'/Mean plots for '+list_string+ ' at '+Site_ID + ' freq ' + str(plot_freq))
+    pl.savefig(mypathforResults+'/Mean plots for '+list_string+ ' at '+Site_ID + ' freq ' + str(plot_freq)+'_'+versionID)
     #pl.show()
     pl.close()        
 
 
-def Doplots_at_daily_other(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq):   
+def Doplots_at_daily_other(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID):   
    
     print "Doing Other plots for "+Site_ID
     running_freq=30
@@ -430,13 +430,13 @@ def Doplots_at_daily_other(mypathforResults,myBaseforResults,New_combined, Site_
 	datemax = dt.date(ydata.max().year+1, 1, 1)
 	ax.set_xlim(datemin, datemax)
     
-    pl.suptitle('Mean plots for for '+list_string+ ' at '+Site_ID+ ' freq ' + str(plot_freq),size=20)  
+    pl.suptitle('Mean plots for for '+list_string+ ' at '+Site_ID+ ' freq ' + str(plot_freq)+'_'+versionID,size=20)  
 
-    pl.savefig(mypathforResults+'/Mean plots for '+list_string+ ' at '+Site_ID + ' freq ' + str(plot_freq))
+    pl.savefig(mypathforResults+'/Mean plots for '+list_string+ ' at '+Site_ID + ' freq ' + str(plot_freq)+'_'+versionID)
     #pl.show()
     pl.close()
 
-def Doplots_at_daily_carbon_g(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq):   
+def Doplots_at_daily_carbon_g(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID):   
    
     print "Doing Carbon plots in units mg for "+Site_ID
     #Create new data and variables
@@ -507,12 +507,12 @@ def Doplots_at_daily_carbon_g(mypathforResults,myBaseforResults,New_combined, Si
     #ax.set_xlim(datemin, datemax)
     
     #pl.savefig(pdf, format='pdf')
-    pl.suptitle('Timeseries Carbon plot for '+Site_ID + ' freq ' + str(plot_freq),size=24)
-    pl.savefig(mypathforResults+'/Results carbon plots in g C m-2 d-1_'+Site_ID + ' freq ' + str(plot_freq))
+    pl.suptitle('Timeseries Carbon plot for '+Site_ID + ' freq ' + str(plot_freq)+'_'+versionID,size=24)
+    pl.savefig(mypathforResults+'/Results carbon plots in g C m-2 d-1_'+Site_ID + ' freq ' + str(plot_freq)+'_'+versionID)
     #pl.show()
     pl.close()
 
-def Doplots_at_daily_EB(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq):   
+def Doplots_at_daily_EB(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID):   
    
     print "Doing Energy Balance plots for "+Site_ID
     #Create new data and variables
@@ -587,12 +587,12 @@ def Doplots_at_daily_EB(mypathforResults,myBaseforResults,New_combined, Site_ID,
     #ax.set_xlim(datemin, datemax)
     
     #pl.savefig(pdf, format='pdf')
-    pl.suptitle('Timeseries EB plot for '+Site_ID + ' freq ' + str(plot_freq),size=24)
-    pl.savefig(mypathforResults+'/Results EB plots '+Site_ID + ' freq ' + str(plot_freq))
+    pl.suptitle('Timeseries EB plot for '+Site_ID + ' freq ' + str(plot_freq)+'_'+versionID,size=24)
+    pl.savefig(mypathforResults+'/Results EB plots '+Site_ID + ' freq ' + str(plot_freq)+'_'+versionID)
     #pl.show()
     pl.close()
     
-def Doplots_at_daily_carbon_umol(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq):   
+def Doplots_at_daily_carbon_umol(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID):   
    
     print "Doing Carbon plots for "+Site_ID
     #Create new data and variables
@@ -663,8 +663,8 @@ def Doplots_at_daily_carbon_umol(mypathforResults,myBaseforResults,New_combined,
     #ax.set_xlim(datemin, datemax)
     
     #pl.savefig(pdf, format='pdf')
-    pl.suptitle('Timeseries Carbon plot for '+Site_ID + ' freq ' + str(plot_freq),size=24)
-    pl.savefig(mypathforResults+'/Results carbon plots in umol CO2 m-2 s-1_'+Site_ID + ' freq ' + str(plot_freq))
+    pl.suptitle('Timeseries Carbon plot for '+Site_ID + ' freq ' + str(plot_freq)+'_'+versionID,size=24)
+    pl.savefig(mypathforResults+'/Results carbon plots in umol CO2 m-2 s-1_'+Site_ID + ' freq ' + str(plot_freq)+'_'+versionID)
     #pl.show()
     pl.close()
 
@@ -702,8 +702,8 @@ def get_units(x,Ws_label):
 	units = ''
     return units
 
-def Doplots_monthly_diff(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label):   
-    
+def Doplots_monthly_diff(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,versionID):   
+
     print "Doing Mean Monthly DIFF (Best Alt Met - Tower) plot for "+Site_ID
     #create a string of the items to be plotted to be used later to save filename
     list_string=''
@@ -756,14 +756,14 @@ def Doplots_monthly_diff(mypathforResults,myBaseforResults,New_combined, Site_ID
 	datemax = dt.date(ydata.max().year+1, 1, 1)
 	ax.set_xlim(datemin, datemax)
     
-    pl.suptitle('Mean Monthly DIFF (Best Alt Met - Tower) plot for for '+list_string+ ' at '+Site_ID)  
+    pl.suptitle('Mean Monthly DIFF (Best Alt Met - Tower) plot for for '+list_string+ ' at '+Site_ID+'_'+versionID)  
     
     #pl.savefig(pdf, format='pdf')
-    pl.savefig(mypathforResults+'/Mean Monthly DIFF plot for '+list_string+ ' at '+Site_ID)
+    pl.savefig(mypathforResults+'/Mean Monthly DIFF plot for '+list_string+ ' at '+Site_ID+'_'+versionID)
     #pl.show()
     pl.close()
         
-def Plot_Pct_nans(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in):   
+def Plot_Pct_nans(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,versionID):   
         list_string=''
 	for z in list_in:
 	    #cretae string list
@@ -785,7 +785,7 @@ def Plot_Pct_nans(mypathforResults,myBaseforResults,New_combined, Site_ID,list_i
 	    
 	    if item == 'Fc_ustar': item = 'Fc'
 	    
-	    Pct_nan_DF=pd.read_csv(mypathforResults+'/'+'Nan counts and Pct filled for '+item+' at ' +Site_ID+'.csv')
+	    Pct_nan_DF=pd.read_csv(mypathforResults+'/'+'Nan counts and Pct filled for '+item+' at ' +Site_ID+'_'+versionID+'.csv')
 	    xdata1a=Pct_nan_DF['Pct_nan']
 	    xdata1b=Pct_nan_DF['Pct_notfilled']
 	    totalpoints=len(Pct_nan_DF)
@@ -815,15 +815,15 @@ def Plot_Pct_nans(mypathforResults,myBaseforResults,New_combined, Site_ID,list_i
 	    #except:
 		#pass
 	
-	pl.suptitle('Plots of missing data for '+list_string+ ' at '+Site_ID)  
+	pl.suptitle('Plots of missing data for '+list_string+ ' at '+Site_ID+'_'+versionID)  
 
 	#pl.savefig(pdf, format='pdf')
-	pl.savefig(mypathforResults+'/Plots of missing data for '+list_string+ ' at '+Site_ID)
+	pl.savefig(mypathforResults+'/Plots of missing data for '+list_string+ ' at '+Site_ID+'_'+versionID)
 	#pl.show()
 	pl.close()    
 	print 'Closed'
 
-def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate):    
+def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate,versionID):    
     print "Doing Energy Balance closure plots for "+Site_ID
 
     #First plot use ALL data and years
@@ -962,9 +962,9 @@ def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate)
     ax4.legend(loc='upper left')
     pl.ylabel('Fh + Fe (W m-2)')
     pl.xlabel('Fn - Fg (W m-2)')    
-    pl.suptitle('Energy balance closure at '+Site_ID+ ' '+str(startdate.year)+ ' to '+str(enddate.year),size=20)  
+    pl.suptitle('Energy balance closure at '+Site_ID+ ' '+str(startdate.year)+ ' to '+str(enddate.year)+'_'+versionID,size=20)  
     
-    pl.savefig(mypathforResults+'/'+'Energy balance closure at ' +Site_ID + ' all years') 
+    pl.savefig(mypathforResults+'/'+'Energy balance closure at ' +Site_ID + ' all years'+'_'+versionID) 
     #pl.show()
     pl.close()    
     print 'Closed'
@@ -1114,16 +1114,16 @@ def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate)
 	    ax4.legend(loc='upper left')
 	    pl.ylabel('Fh + Fe (W m-2)')
 	    pl.xlabel('Fn - Fg (W m-2)')    
-	    pl.suptitle('Energy balance closure at '+Site_ID+ ' for year '+str(plotyear),size=20)  
+	    pl.suptitle('Energy balance closure at '+Site_ID+ ' for year '+str(plotyear)+'_'+versionID,size=20)  
 	    
-	    pl.savefig(mypathforResults+'/'+'Energy balance closure at '+Site_ID+ ' for year '+str(plotyear)) 
+	    pl.savefig(mypathforResults+'/'+'Energy balance closure at '+Site_ID+ ' for year '+str(plotyear)+'_'+versionID) 
 	    #pl.show()
 	    pl.close()    
 	except:
 	    print "WARNING plot not completed for ebergy balance at " + Site_ID + " for "+str(plotyear)
 	    pass
 	    
-def regressionLasslop(mypathforResults,New_combined,Site_ID,startdate,enddate,freq_list,list_in):    
+def regressionLasslop(mypathforResults,New_combined,Site_ID,startdate,enddate,freq_list,list_in,versionID):    
     
     for plot_freq in freq_list: 
 	for var_to_plot in list_in:
@@ -1208,14 +1208,14 @@ def regressionLasslop(mypathforResults,New_combined,Site_ID,startdate,enddate,fr
 	    pl.xlabel(std_variable + ' (g C m-2 '+plot_freq+'-1)',size=16)
 	    pl.ylabel(Lasslop_variable +' (g C m-2 '+plot_freq+'-1)',size=16)
 	    
-	    pl.suptitle('Plot '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID ,size=20)  
+	    pl.suptitle('Plot '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID +'_'+versionID,size=20)  
 	    
-	    pl.savefig(mypathforResults+'/Plot '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID+'.png') 
+	    pl.savefig(mypathforResults+'/Plot '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID+'_'+versionID+'.png') 
 	    #pl.show()
 	    pl.close()    
-	    print 'Closed Plot '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID
+	    print 'Closed Plot '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID+'_'+versionID
 
-def regressionFre(mypathforResults,New_combined,Site_ID,startdate,enddate,freq_list,list_in):    
+def regressionFre(mypathforResults,New_combined,Site_ID,startdate,enddate,freq_list,list_in,versionID):    
     
     for plot_freq in freq_list: 
 	for var_to_plot in list_in:
@@ -1299,15 +1299,15 @@ def regressionFre(mypathforResults,New_combined,Site_ID,startdate,enddate,freq_l
 	    pl.xlabel(std_variable + ' (g C m-2 '+plot_freq+'-1)',size=16)
 	    pl.ylabel(Lasslop_variable +' (g C m-2 '+plot_freq+'-1)',size=16)
 	    
-	    pl.suptitle('Plot '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID ,size=20)  
+	    pl.suptitle('Plot '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID +'_'+versionID,size=20)  
 	    
-	    pl.savefig(mypathforResults+'/Plot2 '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID+'.png') 
+	    pl.savefig(mypathforResults+'/Plot2 '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID+'_'+versionID+'.png') 
 	    #pl.show()
 	    pl.close()    
-	    print 'Closed Plot '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID
+	    print 'Closed Plot '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID+'_'+versionID
  
 	
-def cummulative_CO2_H2O(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill):    
+def cummulative_CO2_H2O(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill,versionID):    
     print "Doing Cummulative CO2 and H2O plots for "+Site_ID
  
     #First plot use ALL data and years
@@ -1365,8 +1365,8 @@ def cummulative_CO2_H2O(mypathforResults,New_combined,Site_ID,startdate,enddate,
     pl.legend(loc='upper left')
     pl.ylabel('Cummulative Carbon flux (t C ha-1 y-1)')
     pl.xlabel('Time (30 min intervals)')
-    pl.suptitle('Cummulative CO2 ustar plot for '+Site_ID,size=20) 
-    pl.savefig(mypathforResults+'/'+'Cummulative CO2 plot for '+Site_ID) 
+    pl.suptitle('Cummulative CO2 ustar plot for '+Site_ID+'_'+versionID,size=20) 
+    pl.savefig(mypathforResults+'/'+'Cummulative CO2 plot for '+Site_ID+'_'+versionID) 
     #pl.show()
     pl.close()    
 
@@ -1410,13 +1410,13 @@ def cummulative_CO2_H2O(mypathforResults,New_combined,Site_ID,startdate,enddate,
     pl.legend(loc='upper left')
     pl.ylabel('Cummulative water flux (mm)')
     pl.xlabel('Time (30 minute periods)')
-    pl.suptitle('Cummulative H2O plot for '+Site_ID,size=20) 
-    pl.savefig(mypathforResults+'/'+'Cummulative H2O plot for '+Site_ID) 
+    pl.suptitle('Cummulative H2O plot for '+Site_ID+'_'+versionID,size=20) 
+    pl.savefig(mypathforResults+'/'+'Cummulative H2O plot for '+Site_ID+'_'+versionID) 
     #pl.show()
     pl.close()   
 
 
-def mintimeseries_plot(mypathforResults,predicted,observed,regress,variable_to_fill, Site_ID,units,targets,output,item):    
+def mintimeseries_plot(mypathforResults,predicted,observed,regress,variable_to_fill, Site_ID,units,targets,output,item,versionID):    
     ANN_label=str(item+"_NN")    
     pl.plot( targets, 'b--' )
     pl.plot( output, 'k-' )
@@ -1427,7 +1427,7 @@ def mintimeseries_plot(mypathforResults,predicted,observed,regress,variable_to_f
     pl.legend()
     pl.title('Tower vs ANN 30 min timeseries for '+item+' at ' +Site_ID)
     pl.ylabel(item + '('+units+')')
-    pl.savefig(mypathforResults+'/'+'Tower vs ANN 30 min timeseries for '+item+' at ' +Site_ID) 
+    pl.savefig(mypathforResults+'/'+'Tower vs ANN 30 min timeseries for '+item+' at ' +Site_ID+'_'+versionID) 
     #pl.show()
     pl.close()
     
@@ -1440,7 +1440,7 @@ def count_total(frame):
     return (frame.shape[0])
 
 
-def do_nan_stats(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label):
+def do_nan_stats(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,versionID):
 
     for item in list_in:
 	print "Doing Stats for Nans and pct filled"
@@ -1461,13 +1461,28 @@ def do_nan_stats(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in
 	Numbers_by_month.astype('int32')
 	
 	#Write out file
-	Numbers_by_month.to_csv(mypathforResults+'/'+'Nan counts and Pct filled for '+item+' at ' +Site_ID+'.csv')	
-	Numbers_by_month.to_pickle(mypathforResults+'/'+'Nan counts and Pct filled for '+item+' at ' +Site_ID+'.df') 	
-    
+	Numbers_by_month.to_csv(mypathforResults+'/'+'Nan counts and Pct filled for '+item+' at ' +Site_ID+'_'+versionID+'.csv')	
+	Numbers_by_month.to_pickle(mypathforResults+'/'+'Nan counts and Pct filled for '+item+' at ' +Site_ID+'_'+versionID+'.df') 	
+
+def Dotables(mypathforResults,myBaseforResults,New_combined, Site_ID,subset_list_in,Ws_label,plot_freq,versionID):
+    if plot_freq=="year":
+	summary_df=New_combined.groupby([lambda x: x.year]).mean()
+	summary_df_subset=New_combined[subset_list_in].groupby([lambda x: x.year]).mean()
+    elif plot_freq=="month":
+	summary_df=New_combined.groupby([lambda x: x.year,lambda x: x.month]).mean()
+	summary_df_subset=New_combined[subset_list_in].groupby([lambda x: x.year,lambda x: x.month]).mean()	
+    elif plot_freq=="week":
+	summary_df=New_combined.groupby([lambda x: x.year,lambda x: x.week]).mean()
+	summary_df_subset=New_combined[subset_list_in].groupby([lambda x: x.year,lambda x: x.week]).mean()
+	
+    #Write outputs for each site seperately
+    summary_df.to_csv(myBaseforResults+"/"+"summary_for_freq_"+plot_freq+"_at_"+Site_ID+"_"+versionID+".csv")
+    summary_df_subset.to_csv(myBaseforResults+"/"+"summary_subset_for_freq_"+plot_freq+"_at_"+Site_ID+"_"+versionID+".csv") 
+
 ###########################################################################################################
 ##                 START MAIN CODE
 ###########################################################################################################
-def basic_diags(myBaseforResults,New_combined,Site_id,list_in,Ws_label,do_results,Rain_label_variable_to_fill):     
+def basic_diags(myBaseforResults,New_combined,Site_id,list_in,Ws_label,do_results,Rain_label_variable_to_fill,versionID):     
     global Site_ID
     Site_ID=Site_id
     
@@ -1488,7 +1503,7 @@ def basic_diags(myBaseforResults,New_combined,Site_id,list_in,Ws_label,do_result
     enddate=New_combined.index[len(New_combined)-1]
     
     list_in=['Fc','Fe','Fh','Fg','Ta','Ah',Rain_label_variable_to_fill,Ws_label,'Ts','Sws','Fsd','Fsu','Fld','Flu','Fn'] 
-    do_nan_stats(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label)
+    do_nan_stats(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,versionID)
     
     ###############################
     #Do plots
@@ -1498,84 +1513,84 @@ def basic_diags(myBaseforResults,New_combined,Site_id,list_in,Ws_label,do_result
     plot_freq = 'dayofyear'
     
     list_in=['Fc','Fe','Fh','Fg']
-    Doplots_at_daily(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)
+    Doplots_at_daily(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID)
     list_in=['Fsu','Fsd','Flu','Fld']
-    Doplots_at_daily(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)
+    Doplots_at_daily(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID)
     list_in=['Ta','Ah',Ws_label,'VPD']
-    Doplots_at_daily(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)    
+    Doplots_at_daily(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID)    
     list_in=['Ts','Sws',Rain_label_variable_to_fill]
-    Doplots_at_daily(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)       
+    Doplots_at_daily(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID)       
     #Note here that there are NEW variable names that will be dealt with in the function
     list_in=['BR','WUE','RUE','EBC','EF']
-    Doplots_at_daily_other(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq) 
+    Doplots_at_daily_other(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID) 
 
     plot_freq = 'week'
     
     list_in=['Fc','Fe','Fh','Fg']
-    Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)
+    Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID)
     list_in=['Fsu','Fsd','Flu','Fld']
-    Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)
+    Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID)
     list_in=['Ta','Ah',Ws_label]
-    Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)    
+    Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID)    
     list_in=['Ts','Sws',Rain_label_variable_to_fill]
-    Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)   
+    Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID)   
 
     plot_freq = 'month'
     
     #list_in=['Fc','Fe','Fh','Fg']
-    #Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)
+    #Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID)
     #list_in=['Fsu','Fsd']
-    #Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)
+    #Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID)
     #list_in=['Ta','Ah',Ws_label]
-    #Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)    
+    #Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID)    
     #list_in=['Ts','Sws',Rain_label_variable_to_fill]
-    #Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq)       
+    #Doplots_at_freq(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID)       
     
     #Plot timeseries of monthly over all periods
     list_in=['Ta','Ah',Ws_label]
-    Doplots_monthly_diff(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label)
+    Doplots_monthly_diff(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,versionID)
     list_in=['Fc','Fe','Fh','Fg']
-    Doplots_monthly_diff(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label)
+    Doplots_monthly_diff(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,versionID)
     list_in=['Fsd','Fsu','Fld','Flu','Fn']
-    Doplots_monthly_diff(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label)    
+    Doplots_monthly_diff(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,versionID)    
     #Plot Nans and Pct data missing
     list_in=['Ta','Ah',Ws_label]	
-    Plot_Pct_nans(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in)
+    Plot_Pct_nans(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,versionID)
     
     list_in=['Fc_ustar','Fe','Fh','Fg']	
-    Plot_Pct_nans(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in)
+    Plot_Pct_nans(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,versionID)
 
     list_in=['Fsd','Fsu','Fld','Flu','Fn']	
-    Plot_Pct_nans(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in)    
+    Plot_Pct_nans(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,versionID)    
     
     list_in=['Ts','Sws',Rain_label_variable_to_fill]	
-    Plot_Pct_nans(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in)
+    Plot_Pct_nans(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,versionID)
 
     
     #Plots of EB closure
     ####################################################################################
-    regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate)
+    regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate,versionID)
     
     # Do plots of Fre (Reichstein ustar approach vs Lasslop daytime Fre approach
     ####################################################################################
     #Define list of plots to make to process
     freq_list=["dayofyear", "week", "month"]
     list_in=["Fre","GPP","Fc"]	
-    regressionLasslop(mypathforResults,New_combined,Site_ID,startdate,enddate,freq_list,list_in)    
+    regressionLasslop(mypathforResults,New_combined,Site_ID,startdate,enddate,freq_list,list_in,versionID)    
 
     #Define list of plots to make to process
     freq_list=["dayofyear", "week", "month"]
     list_in=["Fre_noct","Fre_NN","Fre_Con"]	
-    regressionFre(mypathforResults,New_combined,Site_ID,startdate,enddate,freq_list,list_in)   
+    regressionFre(mypathforResults,New_combined,Site_ID,startdate,enddate,freq_list,list_in,versionID)   
 
     ##Plot time series of all 30 minute data
-    #mintimeseries_plot(mypathforResults,predicted,observed,regress,item, Site_ID,units,targets,output,ANN_label)
+    #mintimeseries_plot(mypathforResults,predicted,observed,regress,item, Site_ID,units,targets,output,ANN_label,versionID)
     ##Plot regression of Tower versus ANN
-    #regressionANN(mypathforResults,predicted,observed,regress,item, Site_ID,units,ANN_label)
+    #regressionANN(mypathforResults,predicted,observed,regress,item, Site_ID,units,ANN_label,versionID)
     ##Plot diurnals for every second month 6 graphs
-    #Doplots_diurnal(mypathforResults,New_combined,item, Site_ID,units,ANN_label)
+    #Doplots_diurnal(mypathforResults,New_combined,item, Site_ID,units,ANN_label,versionID)
     ##Plot timeseries of monthly over all periods
-    #Doplots_monthly(mypathforResults,New_combined,item, Site_ID,units,ANN_label)
+    #Doplots_monthly(mypathforResults,New_combined,item, Site_ID,units,ANN_label,versionID)
     
     #Do results plots
     if do_results==True:
@@ -1590,20 +1605,33 @@ def basic_diags(myBaseforResults,New_combined,Site_id,list_in,Ws_label,do_result
 	mypathforResults=myBaseforResults+"/Results"  	#Create directory for results
 
 	#Do cummulative water and carbon plots
-	cummulative_CO2_H2O(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill)
+	cummulative_CO2_H2O(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill,versionID)
 	
 	#Do time series CO2 (GPP,Re plots)
 	list_in=['Fc_ustar','GPP_Con','Fre_Con']
 	plot_freq = 'dayofyear'
-	Doplots_at_daily_carbon_umol(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq) 	
-	Doplots_at_daily_carbon_g(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq) 	
+	Doplots_at_daily_carbon_umol(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID) 	
+	Doplots_at_daily_carbon_g(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID) 	
 
 	#Do time series Energy Balnce (Fn,Fe,Fh,Fg plots)
 	list_in=['Fn_Con','Fe_Con','Fh_Con','Fg_Con']
 	plot_freq = 'dayofyear'	
-	Doplots_at_daily_EB(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq) 
+	Doplots_at_daily_EB(mypathforResults,myBaseforResults,New_combined, Site_ID,list_in,Ws_label,plot_freq,versionID) 
 	
-
+	#Do outputs of Tables.  Do this for monthly and annual.
+	#Provide a subset list of variables you want.  The script will automatically generate an output of ALL variables as well
+	#Do time series CO2 (GPP,Re plots)
+	subset_list_in=["Ta_Con","ps_Con","Ah_Con","VPD_Con","Precip_Con","Rainf_CABLE_mm","Fsd_Con","Fsu_Con","Flu_Con","Fld_Con","Fn_Con",
+	                 "Fc","Fc_Con","Fc_ustar","Fe_Con","Fh_Con","Fg_Con","Fre_Con","GPP_Con","ustar_threshold","ustar_max", 
+	                 "250m_16_days_EVI_new_smooth","250m_16_days_NDVI_new_smooth","Fpar_1km_new_smooth","Lai_1km_new_smooth","Gpp_1km_new_smooth"]
+	#Define the freq at which to output.Can be "week", "month", "year"
+	plot_freq = 'year'
+	Dotables(mypathforResults,myBaseforResults,New_combined, Site_ID,subset_list_in,Ws_label,plot_freq,versionID) 
+	
+	#Define the freq at which to output.Can be "week", "month", "year"
+	plot_freq = 'month'
+	Dotables(mypathforResults,myBaseforResults,New_combined, Site_ID,subset_list_in,Ws_label,plot_freq,versionID) 
+	
 	
     ###################################################
     #  File stuff

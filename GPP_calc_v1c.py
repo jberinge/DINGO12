@@ -30,7 +30,7 @@ from ffnet import ffnet, mlgraph, readdata, tmlgraph, imlgraph
 from numpy import array
 
 
-def Doplots_diurnal(mypathforResults,PlottingDF, Site_ID):
+def Doplots_diurnal(mypathforResults,PlottingDF, Site_ID,versionID):
 
     print "Doing diurnal plot for month "
     #Do Diurnal Plots for all 12 months
@@ -254,15 +254,15 @@ def Doplots_diurnal(mypathforResults,PlottingDF, Site_ID):
     pl.legend(shadow=True, fancybox=True,loc='best')
     
     figure(1)
-    pl.suptitle('Carbon partitioning ensemble diurnal average at '+Site_ID)
+    pl.suptitle('Carbon partitioning ensemble diurnal average at '+Site_ID + '_' + versionID)
     pl.subplots_adjust(top=0.85)
     pl.tight_layout()  
-    pl.savefig(mypathforResults+'/ANN ensemble diurnal average at '+Site_ID)
+    pl.savefig(mypathforResults+'/ANN ensemble diurnal average at '+Site_ID + '_' + versionID)
     #pl.show() 
     pl.close()
     time.sleep(1)
 
-def Doplots_diurnal_Fre(mypathforResults,PlottingDF, Site_ID):
+def Doplots_diurnal_Fre(mypathforResults,PlottingDF, Site_ID,versionID):
 
     print "Doing diurnal Fre plot for month "
     #Do Diurnal Plots for all 12 months
@@ -486,88 +486,19 @@ def Doplots_diurnal_Fre(mypathforResults,PlottingDF, Site_ID):
     pl.legend(shadow=True, fancybox=True,loc='best')
     
     figure(1)
-    pl.suptitle('Fre ensemble diurnal average at '+Site_ID)
+    pl.suptitle('Fre ensemble diurnal average at '+Site_ID + '_' + versionID)
     pl.subplots_adjust(top=0.85)
     pl.tight_layout()  
-    pl.savefig(mypathforResults+'/Fre ensemble diurnal average at '+Site_ID)
+    pl.savefig(mypathforResults+'/Fre ensemble diurnal average at '+Site_ID + '_' + versionID)
     #pl.show() 
     pl.close()
     time.sleep(1)
-    
-def Doplots_monthly(mypathforResults,PlottingDF,variable_to_fill, Site_ID,units,item):   
-    ANN_label=str(item+"_NN")     #Do Monthly Plots
-    print "Doing MOnthly  plot"
-    #t = arange(1, 54, 1)
-    NN_label='Fc'
-    Plottemp = PlottingDF[[NN_label,item]][PlottingDF['day_night']!=1]
-    #Plottemp = PlottingDF[[NN_label,item]].dropna(how='any')
-    figure(1)
-    pl.title('Nightime ANN v Tower by year-month for '+item+' at '+Site_ID)
 
-    try:
-	xdata1a=Plottemp[item].groupby([lambda x: x.year,lambda x: x.month]).mean()
-	plotxdata1a=True
-    except:
-	plotxdata1a=False
-    try:
-	xdata1b=Plottemp[NN_label].groupby([lambda x: x.year,lambda x: x.month]).mean()
-	plotxdata1b=True
-    except:
-	plotxdata1b=False 
-    if plotxdata1a==True:
-	pl.plot(xdata1a,'r',label=item) 
-    if plotxdata1b==True:
-	pl.plot(xdata1b,'b',label=NN_label)
-    pl.ylabel('Flux')    
-    pl.xlabel('Year - Month')       
-    pl.legend()
-    pl.savefig(mypathforResults+'/ANN and Tower plots by year and month for variable '+item+' at '+Site_ID)
-    #pl.show()
-    pl.close()
-    time.sleep(1)
-    
-def regressionANN(mypathforResults,predicted,observed,regress,variable_to_fill, Site_ID,units,item):    
-    ANN_label=str(item+"_NN") 
-    graphtext1=str('slope      ' + str("{0:.2f}".format(float(regress[0][0]))) +'\n' +
-                   'intercept  ' + str("{0:.2f}".format(float(regress[0][1]))) +'\n' +
-                   'r-value    ' + str("{0:.2f}".format(float(regress[0][2]))) +'\n' +
-                   'p-value    ' + str("{0:.2f}".format(float(regress[0][3]))) +'\n' +
-                   'slope SE   ' + str("{0:.2f}".format(float(regress[0][4])))       )  
-    pl.figtext(0.7,0.6,graphtext1, bbox=dict())
-    pl.plot(observed, predicted, 'o', label='targets vs. outputs')    
-    slope = regress[0][0]; intercept = regress[0][1]
-
-    x = np.linspace(min(observed),max(observed))
-    y = slope * x + intercept
-    pl.plot(x, y, linewidth = 2, label = 'regression line')
-    pl.legend()
-    pl.title('Tower vs ANN for '+item+' at ' +Site_ID)
-    pl.xlabel('Tower ' + '('+units+')')
-    pl.ylabel('ANN ' + '('+units+')')
-    pl.legend(shadow=True, fancybox=True,loc='best')
-    
-    pl.savefig(mypathforResults+'/'+'Tower vs ANN for '+item+' at ' +Site_ID) 
-    #pl.show()
-    pl.close()  
     
 
 
-def mintimeseries_plot(mypathforResults,predicted,observed,regress,variable_to_fill, Site_ID,units,targets,output,item):    
-    ANN_label=str(item+"_NN")    
-    pl.plot( targets, 'b--' )
-    pl.plot( output, 'k-' )
-    pl.legend(('targets', 'output'))
-    pl.xlabel('Time'); 
-    pl.title('Outputs vs. target of trained network for '+item)
-    pl.grid(True)
-    pl.legend()
-    pl.title('Tower vs ANN 30 min timeseries for '+item+' at ' +Site_ID)
-    pl.ylabel(item + '('+units+')')
-    pl.savefig(mypathforResults+'/'+'Tower vs ANN 30 min timeseries for '+item+' at ' +Site_ID) 
-    #pl.show()
-    pl.close()
-    
-def GPP_calculate(myBaseforResults,New_combined,Site_ID):     
+
+def GPP_calculate(myBaseforResults,New_combined,Site_ID,versionID):     
     
     ###########################################################################################################
     ##                 START MAIN CODE
@@ -594,8 +525,12 @@ def GPP_calculate(myBaseforResults,New_combined,Site_ID):
     
     #Remember   #Can select period of 'night' (2) and or 'evening' (3) and 'day' (1)
     
-    #Create a new column of constructed GPP based on nighttime and ustar greater than ustar max
-    New_combined['Fre_Con']=New_combined['Fc'][New_combined['ustar']>New_combined['ustar_max']][New_combined['day_night']!=1]
+    # Use the foloowing threshold for ustar
+    # Use the user chosen ustar thershols ' ustar_used'
+    # This is chosen by the user in the configuration and can be a manual value, Barr or Reichstein or auto.
+    # These are calculated in the FFNET_Fre code and saved as 'ustar_used'
+    # Create a new column of constructed GPP based on nighttime and ustar greater than ustar_used
+    New_combined['Fre_Con']=New_combined['Fc'][New_combined['ustar']>New_combined['ustar_used']][New_combined['day_night']!=1]
     
     #Then fill any remaining with ANN Fre
     New_combined['Fre_Con'][New_combined['Fre_Con'].isnull()]=New_combined['Fre_NN']
@@ -729,8 +664,8 @@ def GPP_calculate(myBaseforResults,New_combined,Site_ID):
     ################################################
     # Plots
     ################################################
-    Doplots_diurnal(mypathforResults,New_combined, Site_ID)
-    Doplots_diurnal_Fre(mypathforResults,New_combined, Site_ID)
+    Doplots_diurnal(mypathforResults,New_combined, Site_ID,versionID)
+    Doplots_diurnal_Fre(mypathforResults,New_combined, Site_ID,versionID)
     
     #####################################
     #  File stuff
@@ -738,9 +673,9 @@ def GPP_calculate(myBaseforResults,New_combined,Site_ID):
     
     #Write out to CSV 
     #Just CO2 stuff
-    New_combined[['Fc','Fc_Con','Fc_ustar','Fc_Lasslop','Fre_NN','Fre_Con','Fre_Lasslop','GPP_Con','GPP_Lasslop','ustar','ustar_max','day_night']].to_csv(mypathforResults+'Carbon flux components_for_'+Site_ID+'.csv', sep=',')
+    New_combined[['Fc','Fc_Con','Fc_ustar','Fc_Lasslop','Fre_NN','Fre_Con','Fre_Lasslop','GPP_Con','GPP_Lasslop','ustar','ustar_max','ustar_used','day_night']].to_csv(mypathforResults+'Carbon flux components_for_'+Site_ID + '_' + versionID + '.csv', sep=',')
     # Save dataframe. 
-    New_combined[['Fc','Fc_Con','Fc_ustar','Fc_Lasslop','Fre_NN','Fre_Con','Fre_Lasslop','GPP_Con','GPP_Lasslop','ustar','ustar_max','day_night']].save(myBaseforResults+'Carbon flux components_for_'+Site_ID+'.df')      
+    New_combined[['Fc','Fc_Con','Fc_ustar','Fc_Lasslop','Fre_NN','Fre_Con','Fre_Lasslop','GPP_Con','GPP_Lasslop','ustar','ustar_max','ustar_used','day_night']].save(mypathforResults+'Carbon flux components_for_'+Site_ID+ '_' + versionID +'.df')      
     
     
     print"Finished GPP outputs at "+ Site_ID    

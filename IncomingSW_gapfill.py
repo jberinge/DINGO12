@@ -44,7 +44,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.rcParams['legend.fancybox'] = True
 from matplotlib.backends.backend_pdf import PdfPages
-from pylab import * 
+from pylab import *
 
 # Custom modules
 import Timezone_v3a as TimeZone
@@ -230,7 +230,7 @@ def Fsd_gapfill(variable_to_fill,myBaseforResults,mypathforAWAPdata,FileName_AWA
         
     # Locals
     timestamp_format=1                 # Set record naming format (0, time at beginning of period, _
-		                       # 1, time at end of period, 2, time in centre of period)
+            		                 # 1, time at end of period, 2, time in centre of period)
     write_to_DF=True                   # Set to true if want data appended to existing DF
     groupby_string='week'              # Frequency of binning for climatology: dayofyear, week, month
     BOM_var='Global_Solar'             # Name of dataframe variable containing Bureau estimates of incoming solar
@@ -304,13 +304,13 @@ def Fsd_gapfill(variable_to_fill,myBaseforResults,mypathforAWAPdata,FileName_AWA
     # If the solar radiation data is available, do daily averages (drop days with missing cases). 
     if Fsd_avail:
         DaySum_DF['Obs_count']=FLUXDataframe[VarToProcess].groupby([lambda x: x.year,lambda y: y.dayofyear]).count()
-  	DaySum_DF['Obs']=FLUXDataframe[VarToProcess].groupby([lambda x: x.year,lambda y: y.dayofyear]).mean()*0.0864
-  	DaySum_DF['Obs']=np.where(DaySum_DF['Obs_count']==1440/rec_length,DaySum_DF['Obs'],np.nan)                         
+        DaySum_DF['Obs']=FLUXDataframe[VarToProcess].groupby([lambda x: x.year,lambda y: y.dayofyear]).mean()*0.0864
+        DaySum_DF['Obs']=np.where(DaySum_DF['Obs_count']==1440/rec_length,DaySum_DF['Obs'],np.nan)                         
     
     # If BOM data is embedded in file, do daily averages as above
     if BOM_avail:
         DaySum_DF['BOM_count']=FLUXDataframe[BOM_var].groupby([lambda x: x.year,lambda y: y.dayofyear]).count()
-  	DaySum_DF['BOM']=FLUXDataframe[BOM_var].groupby([lambda x: x.year,lambda y: y.dayofyear]).mean()          
+        DaySum_DF['BOM']=FLUXDataframe[BOM_var].groupby([lambda x: x.year,lambda y: y.dayofyear]).mean()          
         DaySum_DF['BOM']=np.where(DaySum_DF['BOM_count']==1440/rec_length,DaySum_DF['BOM'],np.nan)  
     
     # If dataframe contains data, generate dates from hierarchical index (year and day of year), otherwise just use AWAP data
@@ -321,16 +321,15 @@ def Fsd_gapfill(variable_to_fill,myBaseforResults,mypathforAWAPdata,FileName_AWA
                          DaySum_DF['level_1'].apply(lambda x: dt.timedelta(int(x)-1)))
         # Buffer beginning and end datetime of file to account for timestamp naming convention
         DaySum_DF.reindex(pd.date_range(FLUXDataframe.index[0].date()-dt.timedelta(days=1),
-                                        FLUXDataframe.index[-1].date()+dt.timedelta(days=1),freq='D'))                 
+                                        FLUXDataframe.index[-1].date()+dt.timedelta(days=1),freq='D'))
+        # Add AWAP if available
+        if AWAP_avail:
+            DaySum_DF=DaySum_DF.join(AWAP_DF,how='left')        
     else:
         DaySum_DF=AWAP_DF
     
     # Add day of year, which is key independent variable
     DaySum_DF['DOY']=[i.timetuple().tm_yday for i in DaySum_DF.index]
-
-    # Add AWAP if available
-    if AWAP_avail:
-        DaySum_DF=DaySum_DF.join(AWAP_DF,how='left')        
                                                                 
     # Drop everything except the data and day of year variables
     DaySum_DF=DaySum_DF[['DOY']+var_list]    
@@ -357,23 +356,21 @@ def Fsd_gapfill(variable_to_fill,myBaseforResults,mypathforAWAPdata,FileName_AWA
         var_list.append(climatol_S.name)
     
         # Compare fill variables (i.e. climatology and external data sources) to observations and rank
-        RMSE_var_list=var_list[1:]
-        RMSE_results_df=pd.DataFrame(index=RMSE_var_list,columns=['RMSE'])
-        for i in RMSE_var_list:
-            RMSE_results_df['RMSE'].ix[i]=RMSE(DaySum_DF[var_list[0]],DaySum_DF[i])
-        RMSE_results_df.sort('RMSE',inplace=True)
+        RMSE_df=gf.RMSE(DaySum_DF[var_list[0]],DaySum_DF[var_list[1:]])
         
         # Plot regression results for lowest RMSE variable
-        best_var=RMSE_results_df.index[0]
-        temp_DF=pd.DataFrame({'x':DaySum_DF[best_var],'y':DaySum_DF[var_list[0]]}).dropna(how='any',axis=0)
-        if len(var_list)>1:
+        best_var=RMSE_df.index[0]
+        if not best_var=='Obs_climatol':
+            temp_DF=pd.DataFrame({'x':DaySum_DF[best_var],'y':DaySum_DF[var_list[0]]}).dropna(how='any',axis=0)
             plot_linear_reg(temp_DF['x'],temp_DF['y'],reg_results_df['slope'].ix[best_var],reg_results_df['intcpt'].ix[best_var],
                             reg_results_df['rsq'].ix[best_var],reg_results_df['pval'].ix[best_var],reg_results_df['se'].ix[best_var],
                             best_var+' solar_exposure_day','Tower Solar_obs',OutputPath_DailyData,Site_ID)
+        else:
+            print 'Climatology provides best performance of available fill variables - skipping regression...'
         
         # Stack the corrected series together (i.e. progressively filling gaps) in order of (minimum) RMSE rank
         DaySum_DF['combined_est']=np.nan
-        for i in RMSE_results_df.index:
+        for i in RMSE_df.index:
             DaySum_DF['combined_est']=np.where(np.isnan(DaySum_DF['combined_est']),DaySum_DF[i],DaySum_DF['combined_est'])
             
         # Fill all gaps in Obs
@@ -382,7 +379,7 @@ def Fsd_gapfill(variable_to_fill,myBaseforResults,mypathforAWAPdata,FileName_AWA
     # If no observational data
     else:
         
-        # Stack the available series together (i.e. progressively filling gaps) in order of (minimum) RMSE rank
+        # Stack the available series together (i.e. progressively filling gaps)
         DaySum_DF['Obs']=np.nan
         for i in var_list:
             DaySum_DF['Obs']=np.where(np.isnan(DaySum_DF['Obs']),DaySum_DF[i],DaySum_DF['Obs'])

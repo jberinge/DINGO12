@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 import os
+import pdb
 
 #------------------------------------------------------------------------------
 # Return a bootstrapped sample of the passed dataframe
@@ -100,29 +101,30 @@ def CPD_fit(temp_df):
 
 #------------------------------------------------------------------------------
 # Coordinate steps in CPD process
-def CPD_main():
+def CPD_main(Fluxfilepath, output_path, num_bootstraps1):
 
-    df,d=CPD_run()
-
+    master_df,d=CPD_run(Fluxfilepath, output_path, num_bootstraps1)
+    #Take number of bootstraps passed here as num_bootstraps1    
     # Find number of years in df    
-    years_index=list(set(df.index.year))
+    years_index=list(set(master_df.index.year))
     
     # Create df to keep counts of total samples and QC passed samples
     counts_df=pd.DataFrame(index=years_index,columns=['Total'])
     counts_df.fillna(0,inplace=True)
     
+    print 'Starting analysis...'    
+    
     # Bootstrap the data and run the CPD algorithm
-    for i in xrange(d['num_bootstraps']):
-        
-        print 'Starting analysis...'
-        
+    for i in xrange(num_bootstraps1):
+                        
         # Bootstrap the data for each year
         bootstrap_flag=(False if i==0 else True)
         if bootstrap_flag==False:
+            df=master_df
             print 'Analysing observational data for first pass'
         else:
-            df=pd.concat([CPD_bootstrap(df.ix[str(j)]) for j in years_index])
-            print 'Analysing bootstrap '+str(i)
+            df=pd.concat([CPD_bootstrap(master_df.ix[str(j)]) for j in years_index])
+            print 'Analysing bootstrap '+str(i) + ' of ' + str(num_bootstraps1)
         
         # Create nocturnal dataframe (drop all records where any one of the variables is NaN)
         temp_df=df[['Fc','Ta','ustar']][df['Fsd']<d['radiation_threshold']].dropna(how='any',axis=0)        
@@ -131,15 +133,18 @@ def CPD_main():
         # try: may be insufficient data, needs to be handled; if insufficient on first pass then return empty,otherwise next pass
         # this will be a marginal case, will almost always be enough data in bootstraps if enough in obs data
         years_df,seasons_df,results_df=CPD_sort(temp_df,d['flux_frequency'],years_index)
-                
+        
         # Use the results df index as an iterator to run the CPD algorithm on the year/season/temperature strata
         print 'Finding change points...'
         cols=['bMod_threshold','bMod_f_max','b0','b1','bMod_CP',
               'aMod_threshold','aMod_f_max','a0','a1','a2','norm_a1','norm_a2','aMod_CP','a1p','a2p']
-        stats_df=pd.DataFrame(np.vstack([CPD_fit(seasons_df.ix[j]) for j in results_df.index]),                      
+        stats_df=pd.DataFrame(np.vstack([CPD_fit(seasons_df.ix[j[0]].ix[j[1]].ix[j[2]]) for j in results_df.index]),                      
                               columns=cols,index=results_df.index)
         results_df=results_df.join(stats_df)        
         print 'Done!'
+        
+        results_df['bMod_CP']=results_df['bMod_CP'].astype(int)
+        results_df['aMod_CP']=results_df['aMod_CP'].astype(int)
         
         # QC the results
         print 'Doing within-sample QC...'
@@ -150,11 +155,11 @@ def CPD_main():
         if bootstrap_flag==False:
             if 'results_output_path' in d.keys(): 
                 print 'Outputting results for all years / seasons / T classes in observational dataset'
-                results_df.to_csv(os.path.join(d['results_output_path'],'Observational_u*_threshold_statistics.csv'))
+                results_df.to_csv(os.path.join(d['results_output_path'],'Observational_ustar_threshold_statistics.csv'))
             if 'plot_output_path' in d.keys(): 
                 print 'Doing plotting for observational data'
                 for j in results_df.index:
-                    CPD_plot_fits(seasons_df.ix[j],results_df.ix[j],d['plot_output_path'])
+                    CPD_plot_fits(seasons_df.ix[j[0]].ix[j[1]].ix[j[2]],results_df.ix[j[0]].ix[j[1]].ix[j[2]],tuple([j[0],j[1],j[2]]),d['plot_output_path'])
         
         # Drop the season and temperature class levels from the hierarchical index, 
         # drop all cases that failed QC
@@ -186,7 +191,7 @@ def CPD_main():
     
     # QC the combined results
     print 'Doing cross-sample QC...'
-    output_stats_df=CPD_QC2(all_results_df,counts_df,d['num_bootstraps'])
+    output_stats_df=CPD_QC2(all_results_df,counts_df,num_bootstraps1)
     print 'Done!' 
 
     # Calculate final values
@@ -220,8 +225,9 @@ def CPD_main():
 #------------------------------------------------------------------------------
 # Plot identified change points in observed (i.e. not bootstrapped) data and   
 # write to specified folder                                                    
-def CPD_plot_fits(temp_df,stats_df,plot_out):
+def CPD_plot_fits(temp_df,stats_df,name,plot_out):
     
+    print "Starting plot"
     # Create series for use in plotting (this could be more easily called from fitting function - why are we separating these?)
     temp_df['ustar_alt']=temp_df['ustar']
     temp_df['ustar_alt'].iloc[int(stats_df['bMod_CP'])+1:]=stats_df['bMod_threshold']
@@ -238,7 +244,7 @@ def CPD_plot_fits(temp_df,stats_df,plot_out):
     plt.plot(temp_df['ustar'],temp_df['Fc'],'bo')
     plt.plot(temp_df['ustar'],temp_df['yHat_b'],color='red')   
     plt.plot(temp_df['ustar'],temp_df['yHat_a'],color='green')   
-    plt.title('Year: '+str(stats_df.name[0])+', Season: '+str(stats_df.name[1])+', T class: '+str(stats_df.name[2])+'\n',fontsize=22)
+    plt.title('Year: '+str(name[0])+', Season: '+str(name[1])+', T class: '+str(name[2])+'\n',fontsize=22)
     plt.xlabel(r'u* ($m\/s^{-1}$)',fontsize=16)
     plt.ylabel(r'Fc ($\mu mol C\/m^{-2} s^{-1}$)',fontsize=16)
     plt.axvline(x=stats_df['bMod_threshold'],color='black',linestyle='--')
@@ -246,7 +252,7 @@ def CPD_plot_fits(temp_df,stats_df,plot_out):
     txt='Change point detected at u*='+str(round(stats_df['bMod_threshold'],3))+' (i='+str(stats_df['bMod_CP'])+')'
     ax=plt.gca()
     plt.text(0.57,0.1,txt,bbox=props,fontsize=12,verticalalignment='top',transform=ax.transAxes)
-    plot_out_name='Y'+str(stats_df.name[0])+'_S'+str(stats_df.name[1])+'_Tclass'+str(stats_df.name[2])+'.jpg'
+    plot_out_name='Y'+str(name[0])+'_S'+str(name[1])+'_Tclass'+str(name[2])+'.jpg'
     fig.savefig(os.path.join(plot_out,plot_out_name))
     plt.close(fig)
 
@@ -358,28 +364,32 @@ def CPD_QC2(df,output_df,bootstrap_n):
 
 #------------------------------------------------------------------------------
 # Fetch the data and prepare it for analysis
-def CPD_run():
+def CPD_run(Fluxfilepath, output_path, num_bootstraps1):
         
-    # Prompt user for configuration file and get it
-    root = Tkinter.Tk(); root.withdraw()
-    cfName = tkFileDialog.askopenfilename(initialdir='')
-    root.destroy()
-    cf=ConfigObj(cfName)
+    # Get user  configuration 
+    print "Get user  configuration "
+    cf=ConfigObj('QCCPD_config.txt')
     
     # Set input file and output path and create directories for plots and results
-    file_in=os.path.join(cf['files']['input_path'],cf['files']['input_file'])
-    path_out=cf['files']['output_path']
+    #file_in=os.path.join(cf['files']['input_path'],cf['files']['input_file'])
+    print "Do file path stuff "
+
+    file_in  = Fluxfilepath
+    path_out = output_path + '/CPD/'
+    
     plot_path_out=os.path.join(path_out,'Plots')
     if not os.path.isdir(plot_path_out): os.makedirs(os.path.join(path_out,'Plots'))
     results_path_out=os.path.join(path_out,'Results')
     if not os.path.isdir(results_path_out): os.makedirs(os.path.join(path_out,'Results'))    
     
     # Get user-set variable names from config file
+    print "Get user-set variable names from config file"
     vars_data=[cf['variables']['data'][i] for i in cf['variables']['data']]
     vars_QC=[cf['variables']['QC'][i] for i in cf['variables']['QC']]
     vars_all=vars_data+vars_QC
        
     # Read .nc file
+    print "Read .nc file"
     nc_obj=netCDF4.Dataset(file_in)
     flux_frequency=int(nc_obj.time_step)
     dates_list=[dt.datetime(*xlrd.xldate_as_tuple(elem,0)) for elem in nc_obj.variables['xlDateTime']]
@@ -390,9 +400,11 @@ def CPD_run():
     df=pd.DataFrame(d,index=dates_list)    
         
     # Build dictionary of additional configs
+    print "Build dictionary of additional configs"
+    
     d={}
     d['radiation_threshold']=int(cf['options']['radiation_threshold'])
-    d['num_bootstraps']=int(cf['options']['num_bootstraps'])
+    #d['num_bootstraps']=int(cf['options']['num_bootstraps'])
     d['flux_frequency']=flux_frequency
     if cf['options']['output_plots']=='True':
         d['plot_output_path']=plot_path_out
@@ -400,6 +412,7 @@ def CPD_run():
         d['results_output_path']=results_path_out
         
     # Replace configured error values with NaNs and remove data with unacceptable QC codes, then drop flags
+    print "Replace configured error values with NaNs"
     df.replace(int(cf['options']['nan_value']),np.nan)
     if 'QC_accept_codes' in cf['options']:    
         QC_accept_codes=ast.literal_eval(cf['options']['QC_accept_codes'])
@@ -408,6 +421,7 @@ def CPD_run():
             df[vars_data[i]]=np.where(eval(eval_string),df[vars_data[i]],np.nan)
     df=df[vars_data]
     
+    print "return df"
     return df,d
 #------------------------------------------------------------------------------
 
@@ -426,10 +440,10 @@ def CPD_sort(df,fluxfreq,years_index):
     years_df['seasons']=[years_df['Fc_count'].ix[j]/(bin_size/2)-1 for j in years_df.index]
     years_df['seasons'].fillna(0,inplace=True)
     years_df['seasons']=years_df['seasons'].astype(int)
-    if np.all(years_df['seasons']==0):
+    if np.all(years_df['seasons']<=0):
         print 'No years with sufficient data for evaluation. Exiting...'
         return
-    elif np.any(years_df['seasons']==0):
+    elif np.any(years_df['seasons']<=0):
         exclude_years_list=years_df[years_df['seasons']<=0].index.tolist()
         exclude_years_str= ','.join(map(str,exclude_years_list))
         print 'Insufficient data for evaluation in the following years: '+exclude_years_str+' (excluded from analysis)'
@@ -486,16 +500,20 @@ def CPD_stats(df,stats_df):
     # Calculate stats
     for i in stats_df.index:
         if isinstance(df['bMod_threshold'].ix[i],pd.Series):
-            temp=stats.describe(df['bMod_threshold'].ix[i])
-            stats_df['ustar_mean'].ix[i]=temp[2]
-            stats_df['ustar_sig'].ix[i]=np.sqrt(temp[3])
-            stats_df['crit_t'].ix[i]=stats.t.ppf(1-0.025,temp[0])
-            stats_df['95%CI_lower'].ix[i]=stats_df['ustar_mean'].ix[i]-stats_df['ustar_sig'].ix[i]*stats_df['crit_t'].ix[i]
-            stats_df['95%CI_upper'].ix[i]=stats_df['ustar_mean'].ix[i]+stats_df['ustar_sig'].ix[i]*stats_df['crit_t'].ix[i]
-            stats_df['skew'].ix[i]=temp[4]
-            stats_df['kurt'].ix[i]=temp[5]
+            if stats_df['b_valid'].ix[i]:
+                temp=stats.describe(df['bMod_threshold'].ix[i])
+                stats_df['ustar_mean'].ix[i]=temp[2]
+                stats_df['ustar_sig'].ix[i]=np.sqrt(temp[3])
+                stats_df['crit_t'].ix[i]=stats.t.ppf(1-0.025,temp[0])
+                stats_df['95%CI_lower'].ix[i]=stats_df['ustar_mean'].ix[i]-stats_df['ustar_sig'].ix[i]*stats_df['crit_t'].ix[i]
+                stats_df['95%CI_upper'].ix[i]=stats_df['ustar_mean'].ix[i]+stats_df['ustar_sig'].ix[i]*stats_df['crit_t'].ix[i]
+                stats_df['skew'].ix[i]=temp[4]
+                stats_df['kurt'].ix[i]=temp[5]
         else:
             stats_df['ustar_mean'].ix[i]=df['bMod_threshold'].ix[i]
             
     return stats_df
 #------------------------------------------------------------------------------
+    
+if __name__=='__main__':
+    test=CPD_main()

@@ -260,8 +260,15 @@ def Doplots_monthly(mypathforResults,PlottingDF,variable_to_fill, Site_ID,units,
         pl.legend()
         pl.savefig(mypathforResults+'/ANN and Tower plots by year and month for variable '+item+' at '+Site_ID+ ' index '+index_str)
         #pl.show()
-        pl.close(3)
-	time.sleep(2)
+        try: 
+	    time.sleep(2)
+	    pl.close(3)
+	    time.sleep(2)
+	except:
+	    print "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+	    print "&&&&&&&&&& Graph aborted  Monthly  plot index " + 'ANN and Tower plots by year and month for variable '+item+' at '+Site_ID+ ' index '+index_str
+	    pass
+
 	
 def regressionANN(mypathforResults,predicted,observed,regress,variable_to_fill, Site_ID,units,list_out,index_str):    
     for index, item in enumerate(list_out):
@@ -597,9 +604,10 @@ def ANN_gapfill(myBaseforResults,New_combined,Site_ID,list_in,list_out,iteration
     
     #Now if Fc storage is needed then write the temporary variable back to the Fc_Con
     if (Use_Fc_Storage=='Yes') and ('Fc_inc_store'  in list_out):
-	New_combined['Fc_NN']=New_combined['Fc_inc_store_NN']
-	New_combined['Fc_Con']=New_combined['Fc_inc_store_Con']
-	New_combined['Fc_Con_QCFlag']=New_combined['Fc_inc_store_Con_QCFlag']
+	New_combined['Fc_NN']=temp_concat['Fc_inc_store_NN']
+	New_combined['Fc_Con']=temp_concat['Fc_inc_store_Con']
+	New_combined['Fc_Con_QCFlag']=temp_concat['Fc_inc_store_Con_QCFlag']
+	temp_concat=New_combined
 	
     print"Completely Finished ANN outputs of "+str(list_out)+" at "+ Site_ID           
     

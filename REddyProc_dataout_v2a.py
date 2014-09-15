@@ -41,7 +41,7 @@ import meteorologicalfunctions as metfuncs
 ##START MAIN CODE
 ####################
 
-def Output_files(New_combined,myBaseforResults,Site_ID):
+def Output_files(New_combined,myBaseforResults,Site_ID,versionID):
     New_combined_grouped=New_combined.groupby([lambda x: x.year])
     
     for year_index in New_combined_grouped:
@@ -99,8 +99,8 @@ def Output_files(New_combined,myBaseforResults,Site_ID):
         #newline1='Year,Day,Hour,NEE,LE,H,Rg,Tair,Tsoil,rH,VPD,Ustar'
         #newline2="--,--,--,umolm-2s-1,Wm-2,Wm-2,Wm-2,degC,degC,%,hPa,ms-1"
         
-        output_temp_filename=mypathforResults+'/REddyProc_temp_'+Site_ID+'_'+str(year_index[0])+'.txt'
-        output_filename=mypathforResults+'/REddyProc_'+Site_ID+'_'+str(year_index[0])+'.txt'
+        output_temp_filename=mypathforResults+'/REddyProc_temp_'+Site_ID+'_'+str(year_index[0])+'_'+versionID +'.txt'
+        output_filename=mypathforResults+'/REddyProc_'+Site_ID+'_'+str(year_index[0])+'_'+versionID +'.txt'
         
         
         

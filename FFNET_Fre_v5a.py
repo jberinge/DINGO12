@@ -206,8 +206,8 @@ def Doplots_monthly(mypathforResults,PlottingDF,variable_to_fill, Site_ID,units,
     print "Doing Monthly  plot index", index_str
     #t = arange(1, 54, 1)
     NN_label='Fc'
-    Plottemp = PlottingDF[[NN_label,item,'ustar','ustar_max','day_night']].dropna(how='any')
-    Plottemp=Plottemp[Plottemp['day_night']!=1][Plottemp['ustar']>Plottemp['ustar_max']]
+    Plottemp = PlottingDF[[NN_label,item,'ustar','ustar_used','day_night']].dropna(how='any')
+    Plottemp=Plottemp[Plottemp['day_night']!=1][Plottemp['ustar']>Plottemp['ustar_used']]
     
     figure(3)
     pl.title('Nightime ANN v Tower ustar filtered by year-month for '+item+' at '+Site_ID+ ' index '+index_str)
@@ -223,7 +223,7 @@ def Doplots_monthly(mypathforResults,PlottingDF,variable_to_fill, Site_ID,units,
     except:
 	plotxdata1b=False 
     try:
-	xdata1c=Plottemp[item][Plottemp['ustar']>Plottemp['ustar_max']].groupby([lambda x: x.year,lambda x: x.month]).mean()
+	xdata1c=Plottemp[item][Plottemp['ustar']>Plottemp['ustar_used']].groupby([lambda x: x.year,lambda x: x.month]).mean()
 	plotxdata1c=True
     except:
 	plotxdata1c=False     
@@ -317,7 +317,7 @@ def mintimeseries_plot(mypathforResults,predicted,observed,regress,variable_to_f
     pl.close(4)
     time.sleep(1)
     
-def Fre_ANN_gapfill_func(myBaseforResults,New_combined,Site_ID,list_in,list_out,iterations,latitude,longitude,index_str,ANN_label,frequency,evening,min_threshold,max_threshold):     
+def Fre_ANN_gapfill_func(myBaseforResults,New_combined,Site_ID,list_in,list_out,iterations,latitude,longitude,index_str,ANN_label,frequency,evening,min_threshold,max_threshold,Ustar_filter_type):     
     
     if 'Fc' in list_out:
         units="umol.m-2.s-1"
@@ -411,8 +411,10 @@ def Fre_ANN_gapfill_func(myBaseforResults,New_combined,Site_ID,list_in,list_out,
 	xnow=New_combined[(New_combined['day_night']==3)]
     else:
 	xnow=New_combined[(New_combined['day_night']==2)]
-    #Can select 'ustar_threshold' or 'ustar_max'  	
-    xnow=xnow[xnow['ustar']>xnow['ustar_max']]
+    # Use the actual ustar_used column which is defined from the type of ustar thershold approach chosen in the config
+    xnow=xnow[xnow['ustar']>xnow['ustar_used']]
+
+	
     #Remove -ve and +ve spikes which are uptake and inconsistent with Fre.
     xnow=xnow[xnow['Fc']>min_threshold][xnow['Fc']<max_threshold]
     xnow=xnow[alllist]
@@ -499,7 +501,7 @@ def Fre_ANN_gapfill_func(myBaseforResults,New_combined,Site_ID,list_in,list_out,
 #Not efficient but have written a wrapper around to get the grouping.
 #Start by dividing the data up into slices.  Here can be all, annual, monthly or a column with a categorical variable (i.e. stage of LULCC or burning)
 
-def Fre_ANN_gapfill(myBaseforResults,New_combined,Site_ID,list_in,list_out,iterations,Tower_Lat,Tower_Long,frequency,evening,min_threshold,max_threshold):     
+def Fre_ANN_gapfill(myBaseforResults,New_combined,Site_ID,list_in,list_out,iterations,Tower_Lat,Tower_Long,frequency,evening,min_threshold,max_threshold,Ustar_filter_type):     
     
     if Site_ID=="RDMF":
 	#define dates of phases
@@ -520,6 +522,29 @@ def Fre_ANN_gapfill(myBaseforResults,New_combined,Site_ID,list_in,list_out,itera
 	New_combined['RDMF_Phase'][phase4_end:phase5_end]="Phase5"
 	New_combined['RDMF_Phase'][phase5_end:phase6_end]="Phase6"
 	New_combined['RDMF_Phase'][phase6_end:phase7_end]="Phase7"
+    
+    # Can select ustar threshold type
+    # Here options for Ustar_filter_type are "auto" which uses default ustar threshold scheme which is currently Reichstein  et al.
+    # Other options are a numerical threshold manually set (i.e. 0.17), 
+    # Or set for Barr et al approach "ustar_Barr"
+    # Or use Reichstein with maximum value over entire timeseries "ustar_Reichstein_Max", 
+    # Or 3 month window maximum allows ustar threshold to vary "ustar_Reichstein_window"    
+    # Define a column that states the actual ustar threshold used  for ANN and later GPP calculations, 
+    # Defined here first based on Ustar_filter_type
+    if Ustar_filter_type == "ustar_Reichstein_Max": 
+	New_combined['ustar_used'] = New_combined['ustar_max']
+    elif Ustar_filter_type == "ustar_Reichstein_window": 
+	New_combined['ustar_used'] = New_combined['ustar_threshold']
+    elif Ustar_filter_type == "ustar_Barr": 
+	New_combined['ustar_used'] = New_combined['ustar_Barr']   
+    elif Ustar_filter_type == "auto": 
+	#Current definition for auto is Reichstein max ustar approach
+	New_combined['ustar_used'] = New_combined['ustar_max']
+    else:
+	#Create a new column with the manual ustar value if this is set from Ustar_filter_type
+	New_combined['ustar_manual'] = float(Ustar_filter_type)
+	New_combined['ustar_used'] = float(Ustar_filter_type)
+
     #Define the variable to be created
     item='Fre'
     #create and reset the variables
@@ -542,6 +567,8 @@ def Fre_ANN_gapfill(myBaseforResults,New_combined,Site_ID,list_in,list_out,itera
     #Need to fill in blocks with the annual ANN for blocks where there may not be enough data points
     #start with new column.  #Create a new variable called '_NN'
     #Fill with nans first
+    
+   
     
     ANN_label=str(item+"_NN")
     New_combined[ANN_label]=np.nan
@@ -566,7 +593,7 @@ def Fre_ANN_gapfill(myBaseforResults,New_combined,Site_ID,list_in,list_out,itera
 	    #Here try ANN on the block.  If the block doesnt have enough values it will return an error and that 
 	    #block is effectively skipped and will be blank
 	    try:
-		temp = Fre_ANN_gapfill_func(myBaseforResults,group,Site_ID,list_in,list_out,iterations,Tower_Lat,Tower_Long,index_str,ANN_label,frequency,evening,min_threshold,max_threshold)
+		temp = Fre_ANN_gapfill_func(myBaseforResults,group,Site_ID,list_in,list_out,iterations,Tower_Lat,Tower_Long,index_str,ANN_label,frequency,evening,min_threshold,max_threshold,Ustar_filter_type)
 	
 	    except:
 		print "Something wrong pass back unchanged for index", index_str
@@ -592,9 +619,9 @@ def Fre_ANN_gapfill(myBaseforResults,New_combined,Site_ID,list_in,list_out,itera
        
     #If using the grouped data then use the concatenated file otherwise if using ALL then use the original DF
     if frequency=="all":
-	temp_concat = Fre_ANN_gapfill_func(myBaseforResults,New_combined,Site_ID,list_in,list_out,iterations,Tower_Lat,Tower_Long,index_str,ANN_label_all,frequency,evening,min_threshold,max_threshold)
+	temp_concat = Fre_ANN_gapfill_func(myBaseforResults,New_combined,Site_ID,list_in,list_out,iterations,Tower_Lat,Tower_Long,index_str,ANN_label_all,frequency,evening,min_threshold,max_threshold,Ustar_filter_type)
     else:
-	temp_concat = Fre_ANN_gapfill_func(myBaseforResults,temp_concat,Site_ID,list_in,list_out,iterations,Tower_Lat,Tower_Long,index_str,ANN_label_all,frequency,evening,min_threshold,max_threshold)
+	temp_concat = Fre_ANN_gapfill_func(myBaseforResults,temp_concat,Site_ID,list_in,list_out,iterations,Tower_Lat,Tower_Long,index_str,ANN_label_all,frequency,evening,min_threshold,max_threshold,Ustar_filter_type)
     
     #Now put together the results from the groups and the all ANN
     #If user choose all data then simply copy 'all' column to the NN column

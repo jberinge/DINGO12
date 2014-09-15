@@ -41,7 +41,7 @@ import meteorologicalfunctions as metfuncs
 ##START MAIN CODE
 ####################
 
-def Output_files(New_combined,myBaseforResults,Site_ID):
+def Output_files(New_combined,myBaseforResults,Site_ID,versionID):
     New_combined_grouped=New_combined.groupby([lambda x: x.year])
     
     for year_index in New_combined_grouped:
@@ -95,8 +95,8 @@ def Output_files(New_combined,myBaseforResults,Site_ID):
               
         columns_out  = ['DTcopy','Ah_Con','Cc','eta','Fa','Fc_Con','Fe_Con','Fg_Con','Fh_Con','Fld_Con','Flu_Con','Fm','Fn_Con','Fsd_Con','Fsu_Con','ps_Con','Precip_Con','Sws_Con','Sws_05','Sws_50','Ta_Con','theta','Ts_Con','ustar','Ws_CSAT_Con','Wd_CSAT','RH_Con','VPD_hPa_Con']             
         
-        output_temp_filename=mypathforResults+'/WAVES_temp_'+Site_ID+'_'+str(year_index[0])+'.csv'
-        output_filename=mypathforResults+'/WAVES_'+Site_ID+'_'+str(year_index[0])+'.csv'
+        output_temp_filename=mypathforResults+'/WAVES_temp_'+Site_ID+'_'+str(year_index[0])+'_'+versionID +'.csv'
+        output_filename=mypathforResults+'/WAVES_'+Site_ID+'_'+str(year_index[0])+'_'+versionID +'.csv'
         
         
         

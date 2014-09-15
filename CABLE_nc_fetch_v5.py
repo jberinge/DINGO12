@@ -370,8 +370,10 @@ def fetch_CABLE(FLUXDataframe,myBaseforResults,CABLEfilename,Site_ID,latitude,lo
 	dailyCABLE_DF=theDataFrame.groupby([lambda x: x.year, lambda x: x.month,lambda x: x.day]).apply(shifttimeDF)
 	#gapfill missing numbers due to time shift.  Use backfill because there was a fwd shift
 	dailyCABLE_DF=dailyCABLE_DF.fillna(method='backfill')
+	
 	#Write out to CSV
-	dailyCABLE_DF.to_csv(mypathforResults+'CABLE_model_input_for_'+Site_ID+'_shifted.csv', sep=',')
+	#Uncomment if you need the CABLE output independantly
+	#dailyCABLE_DF.to_csv(mypathforResults+'CABLE_model_input_for_'+Site_ID+'_shifted.csv', sep=',')
 
 
 
