@@ -470,7 +470,7 @@ def Fre_ANN_gapfill_func(myBaseforResults,New_combined,Site_ID,list_in,list_out,
         New_combined[ANN_label]=net.call(New_combined[list_in])[:,index]
     
     #TEST
-    New_combined.to_csv("E:/My Dropbox/Dropbox/Data_flux_data/Site data processing/HowardSprings/Advanced/test_assertion.csv") 
+    #New_combined.to_csv("E:/My Dropbox/Dropbox/Data_flux_data/Site data processing/HowardSprings/Advanced/test_assertion.csv") 
     
 
     #####################################################

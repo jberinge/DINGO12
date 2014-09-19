@@ -82,7 +82,7 @@ def main():
     
     #File stuff here - Get data from dropbox folder etc
     mypathforFluxdata=cf['Files']['mypathforFluxdata']+Site_ID
-    myBaseforResults=cf['Files']['mypathforFluxdata']+Site_ID+ "/Advanced"
+    myBaseforResults=cf['Files']['mypathforFluxdata']+Site_ID+ "/Advanced_"+versionID
     mypathforAWSdata=cf['Files']['mypathforAWSdata']
     mypathforGlobalSolardata=cf['Files']['mypathforGlobalSolardata']
     mypathforAWAPdata=cf['Files']['mypathforAWAPdata']
@@ -318,18 +318,26 @@ def main():
 	#Save new data
 	New_combined.to_pickle(DFfilename) 
 	New_combined.to_csv(CSVfilename)  
-	
+    
+    #Calculate Barr et al. ustar threshold and uncertainty. It saves output to 'annual_statistics.csv'
     if cf['Options']['Ustar_Barr_calculate']=='Yes':   	
 	print "Starting Barr et al.  Get some coffee!"
 	Fluxfilepath=mypathforFluxdata+'/'+cf['Files']['FLUXfilename']
 	CPD.CPD_main(Fluxfilepath, myBaseforResults, Ustar_Barr_bootstraps)
-	# Now take the results and apply that to the dataframe and add a new column of Barr ustar for each year.
+    
+    #If user chooses 'ustar_Barr' or 'auto' as ustar methods
+    #This is done seperately here.  If you have already done the calculations and produced the annual stats then you can 
+    #selected NO to calculate but still choose ustar_Barr and it will use the stats already calculated.
+    if cf['Options']['Ustar_filter_type']== ('ustar_Barr' or 'auto'):   	
 	annual_stats= pd.read_csv(myBaseforResults+"/CPD/Results/annual_statistics.csv",index_col=0)
 	New_combined= pd.read_pickle(DFfilename) 
 	New_combined['ustar_Barr'] = np.nan
 	
+	# Now take the results and apply that to the dataframe and add a new column of Barr ustar for each year.
 	for i in annual_stats.index:
 	    New_combined['ustar_Barr'].ix[str(i)]=annual_stats['ustar_mean'].ix[i]
+	#Sometimes there is a years missing from the annual stats sheet.  Average ustar and gap fill any missing values 
+	New_combined['ustar_Barr'].fillna(annual_stats['ustar_mean'].mean(), inplace=True)
 	
 	#Save new data
 	New_combined.to_pickle(DFfilename) 

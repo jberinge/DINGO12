@@ -10,8 +10,6 @@ from scipy.optimize import curve_fit
 import Gap_Fill_climatology_v2 as gap_fill_climatology
 import meteorologicalfunctions as metfuncs
 import gapfill_utilities_v3 as gf
-import pdb
-
 
 ###### Functions ######
 
@@ -163,7 +161,6 @@ def Fld_gapfill(variable_to_fill,myBaseforResults,mypathforAWAPdata,FileName_AWA
             rslt_DF['CLF']=pd.concat([rslt_DF['CLF'].ix[i]*DaySum_DF['CLF'].ix[i] for i in DaySum_DF['DT']])
         arr=np.ndarray(shape=(len(FLUXDataframe),3),dtype=float)        
         arr[:,0]=rslt_DF['CLF']
-        pdb.set_trace()
         arr[:,1]=FLUXDataframe['Ta_Con']
         arr[:,2]=FLUXDataframe['E']
         rslt_DF=pd.DataFrame({'Ldown_est':LW_calc(arr,coeffs_opt[0],coeffs_opt[1])},index=FLUXDataframe.index)

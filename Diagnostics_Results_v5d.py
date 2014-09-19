@@ -832,19 +832,19 @@ def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate,
     #Do first plot - All hours
     #============================
     #Get data for all hours - so dont select any
-    tempdata=New_combined[['Fe','Fh','Fg','Fn']].dropna(axis=0,how='any')
-    xdata=tempdata['Fn']-tempdata['Fg']
+    tempdata=New_combined[['Fe','Fh','Fg_Con','Fn_Con']].dropna(axis=0,how='any')
+    xdata=tempdata['Fn_Con']-tempdata['Fg_Con']
     ydata=tempdata['Fe']+tempdata['Fh']
     ax1=pl.subplot(2,2,1)
     pl.title=('Energy Balance closure ALL hours for '+Site_ID )
     #ax.bar(ydata,xdata1a, width=20, color='g',label=item)	
-    ax1.plot(ydata,xdata, 'o', color='#00BFFF') #DeepSkyBlue 
+    ax1.plot(xdata,ydata, 'o', color='#00BFFF') #DeepSkyBlue 
     #ax.plot(ydata,xdata, color='#00008B',linewidth=2,label=item)	 #DarkBlue 
 
     #Get regression stats
     #In this function calculate the linear regression independantly rather than using the NN stats.
     #Use slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
-    slope, intercept, r_value, p_value, std_err = stats.linregress(ydata,xdata)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xdata,ydata)
 
     graphtext1=str('slope      ' + str("{0:.2f}".format(slope)) +'\n' +
                    'intercept  ' + str("{0:.2f}".format(intercept)) +'\n' +
@@ -865,19 +865,19 @@ def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate,
     #Do second plot - Daytime hours
     #=================================
     #Get data for all hours - so dont select any
-    tempdata=New_combined[['Fe','Fh','Fg','Fn']][New_combined['day_night']==1].dropna(axis=0,how='any')
-    xdata=tempdata['Fn']-tempdata['Fg']
+    tempdata=New_combined[['Fe','Fh','Fg_Con','Fn_Con']][New_combined['day_night']==1].dropna(axis=0,how='any')
+    xdata=tempdata['Fn_Con']-tempdata['Fg_Con']
     ydata=tempdata['Fe']+tempdata['Fh']
     ax2=pl.subplot(2,2,2)
     pl.title=('Energy Balance closure DAYTIME hours for '+Site_ID )  
     #ax.bar(ydata,xdata1a, width=20, color='g',label=item)	
-    ax2.plot(ydata,xdata,  'o', color='#00BFFF') #DeepSkyBlue 
+    ax2.plot(xdata,ydata,  'o', color='#00BFFF') #DeepSkyBlue 
     #ax.plot(ydata,xdata, color='#00008B',linewidth=2,label=item)	 #DarkBlue 
 
     #Get regression stats
     #In this function calculate the linear regression independantly rather than using the NN stats.
     #Use slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
-    slope, intercept, r_value, p_value, std_err = stats.linregress(ydata,xdata)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xdata,ydata)
 
     graphtext1=str('slope      ' + str("{0:.2f}".format(slope)) +'\n' +
                    'intercept  ' + str("{0:.2f}".format(intercept)) +'\n' +
@@ -897,19 +897,19 @@ def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate,
     #Do third plot - Nighttime hours
     #===============================
     #Get data for all hours - so dont select any
-    tempdata=New_combined[['Fe','Fh','Fg','Fn']][New_combined['day_night']!=1].dropna(axis=0,how='any')
-    xdata=tempdata['Fn']-tempdata['Fg']
+    tempdata=New_combined[['Fe','Fh','Fg_Con','Fn_Con']][New_combined['day_night']!=1].dropna(axis=0,how='any')
+    xdata=tempdata['Fn_Con']-tempdata['Fg_Con']
     ydata=tempdata['Fe']+tempdata['Fh']
     ax3=pl.subplot(2,2,3)
     pl.title=('Energy Balance closure NIGHTTIME hours for '+Site_ID )    
     #ax.bar(ydata,xdata1a, width=20, color='g',label=item)	
-    ax3.plot(ydata,xdata,  'o', color='#00BFFF') #DeepSkyBlue 
+    ax3.plot(xdata,ydata,  'o', color='#00BFFF') #DeepSkyBlue 
     #ax.plot(ydata,xdata, color='#00008B',linewidth=2,label=item)	 #DarkBlue 
 
     #Get regression stats
     #In this function calculate the linear regression independantly rather than using the NN stats.
     #Use slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
-    slope, intercept, r_value, p_value, std_err = stats.linregress(ydata,xdata)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xdata,ydata)
 
     graphtext1=str('slope      ' + str("{0:.2f}".format(slope)) +'\n' +
                    'intercept  ' + str("{0:.2f}".format(intercept)) +'\n' +
@@ -929,24 +929,24 @@ def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate,
     #Do forth plot - DAILY AVG hours
     #============================
     #Get data for all hours - so dont select any
-    tempdata=New_combined[['Fe','Fh','Fg','Fn']].dropna(axis=0,how='any')
+    tempdata=New_combined[['Fe','Fh','Fg_Con','Fn_Con']].dropna(axis=0,how='any')
     
     by = lambda x: lambda y: getattr(y, x)
-    tempdata=tempdata.groupby([by('year'),by('day')]).mean()    
+    tempdata=tempdata.groupby([by('year'),by('month'),by('day')]).mean()    
 
 
-    xdata=tempdata['Fn']-tempdata['Fg']
+    xdata=tempdata['Fn_Con']-tempdata['Fg_Con']
     ydata=tempdata['Fe']+tempdata['Fh']
     ax4=pl.subplot(2,2,4)
     pl.title=('Energy Balance closure DAILY average for '+Site_ID )  
     #ax.bar(ydata,xdata1a, width=20, color='g',label=item)	
-    ax4.plot(ydata,xdata,  'o', color='#00BFFF') #DeepSkyBlue 
+    ax4.plot(xdata,ydata,  'o', color='#00BFFF') #DeepSkyBlue 
     #ax.plot(ydata,xdata, color='#00008B',linewidth=2,label=item)	 #DarkBlue 
 
     #Get regression stats
     #In this function calculate the linear regression independantly rather than using the NN stats.
     #Use slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
-    slope, intercept, r_value, p_value, std_err = stats.linregress(ydata,xdata)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xdata,ydata)
 
     graphtext1=str('slope      ' + str("{0:.2f}".format(slope)) +'\n' +
                    'intercept  ' + str("{0:.2f}".format(intercept)) +'\n' +
@@ -971,7 +971,7 @@ def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate,
 
     #Now do PLOTS BY YEAR
     #===========================
-    tempdata_grouped=New_combined[['Fe','Fh','Fg','Fn','day_night']].groupby([lambda x: x.year])
+    tempdata_grouped=New_combined[['Fe','Fh','Fg_Con','Fn_Con','day_night']].groupby([lambda x: x.year])
     
     for name, group in tempdata_grouped:
 	try:
@@ -985,7 +985,7 @@ def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate,
 	    #============================
 	    #Get data for all hours - so dont select any
 	    tempdata=group.dropna(axis=0,how='any')
-	    xdata=tempdata['Fn']-tempdata['Fg']
+	    xdata=tempdata['Fn_Con']-tempdata['Fg_Con']
 	    ydata=tempdata['Fe']+tempdata['Fh']
 	    ax1=pl.subplot(2,2,1)
 	    pl.title=('Energy Balance closure ALL hours for '+Site_ID )
@@ -1017,8 +1017,8 @@ def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate,
 	    #Do second plot - Daytime hours
 	    #=================================
 	    #Get data for all hours - so dont select any
-	    tempdata=group[['Fe','Fh','Fg','Fn']][group['day_night']==1].dropna(axis=0,how='any')
-	    xdata=tempdata['Fn']-tempdata['Fg']
+	    tempdata=group[['Fe','Fh','Fg_Con','Fn_Con']][group['day_night']==1].dropna(axis=0,how='any')
+	    xdata=tempdata['Fn_Con']-tempdata['Fg_Con']
 	    ydata=tempdata['Fe']+tempdata['Fh']
 	    ax2=pl.subplot(2,2,2)
 	    pl.title=('Energy Balance closure DAYTIME hours for '+Site_ID )  
@@ -1049,8 +1049,8 @@ def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate,
 	    #Do third plot - Nighttime hours
 	    #===============================
 	    #Get data for all hours - so dont select any
-	    tempdata=group[['Fe','Fh','Fg','Fn']][group['day_night']!=1].dropna(axis=0,how='any')
-	    xdata=tempdata['Fn']-tempdata['Fg']
+	    tempdata=group[['Fe','Fh','Fg_Con','Fn_Con']][group['day_night']!=1].dropna(axis=0,how='any')
+	    xdata=tempdata['Fn_Con']-tempdata['Fg_Con']
 	    ydata=tempdata['Fe']+tempdata['Fh']
 	    ax3=pl.subplot(2,2,3)
 	    pl.title=('Energy Balance closure NIGHTTIME hours for '+Site_ID )    
@@ -1081,13 +1081,13 @@ def regressionEBclosure(mypathforResults,New_combined,Site_ID,startdate,enddate,
 	    #Do forth plot - DAILY AVG hours
 	    #============================
 	    #Get data for all hours - so dont select any
-	    tempdata=group[['Fe','Fh','Fg','Fn']].dropna(axis=0,how='any')
+	    tempdata=group[['Fe','Fh','Fg_Con','Fn_Con']].dropna(axis=0,how='any')
 	    
 	    by = lambda x: lambda y: getattr(y, x)
-	    tempdata=tempdata.groupby([by('day')]).mean()    
+	    tempdata=tempdata.groupby([by('month'),by('day')]).mean()    
 	
 	
-	    xdata=tempdata['Fn']-tempdata['Fg']
+	    xdata=tempdata['Fn_Con']-tempdata['Fg_Con']
 	    ydata=tempdata['Fe']+tempdata['Fh']
 	    ax4=pl.subplot(2,2,4)
 	    pl.title=('Energy Balance closure DAILY average for '+Site_ID )  
@@ -1294,7 +1294,6 @@ def regressionFre(mypathforResults,New_combined,Site_ID,startdate,enddate,freq_l
 	    
 	    print "Min X  " + str(min(xdata)) + "            Max X  " + str(max(xdata))
 	    
-	    
 	    ax1.legend(loc='upper left')
 	    pl.xlabel(std_variable + ' (g C m-2 '+plot_freq+'-1)',size=16)
 	    pl.ylabel(Lasslop_variable +' (g C m-2 '+plot_freq+'-1)',size=16)
@@ -1307,8 +1306,8 @@ def regressionFre(mypathforResults,New_combined,Site_ID,startdate,enddate,freq_l
 	    print 'Closed Plot '+std_variable+' vs '+Lasslop_variable+' at '+plot_freq+' for '+Site_ID+'_'+versionID
  
 	
-def cummulative_CO2_H2O(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill,versionID):    
-    print "Doing Cummulative CO2 and H2O plots for "+Site_ID
+def cummulative_H2O(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill,versionID):    
+    print "Doing Cummulative H2O plots for "+Site_ID
  
     #First plot use ALL data and years
     ###################################
@@ -1327,50 +1326,8 @@ def cummulative_CO2_H2O(mypathforResults,New_combined,Site_ID,startdate,enddate,
     tempdata_grouped=New_combined.groupby([lambda x: x.year])
 
     Num_plots=len(tempdata_grouped)
-    cm = get_cmap('Dark2')
-    #First plot Fc
    
-    fig = figure(1,figsize=(16, 12), dpi=80, facecolor='w', edgecolor='k')
-    ax  = fig.add_subplot(111)
-    
-    index=0
-    for name, group in tempdata_grouped:
-	plotyear=group.index[0].year
-	index=index+1
-	xdata=group['Fc_Cumm']
-	plotyear=group.index[0].year
-	color_rgb = cm(1.*index/Num_plots)
-	ax12=pl.plot(xdata, '-', linewidth=2,color=color_rgb,label='Fc ustar '+str(plotyear))
-
-    index=0
-    for name, group in tempdata_grouped:
-	plotyear=group.index[0].year
-	index=index+1
-	xdata=group['Fc_Cumm']
-	plotyear=group.index[0].year
-	color_rgb = cm(1.*index/Num_plots)
-	#ax12=pl.plot(xdata, '-', linewidth=2,color=color_rgb,label='Fc '+str(plotyear))
-	x_coord_Fc=xdata[-1]
-	y_coord_Fc=len(xdata)-1    
-	ax.annotate('test', xy=(x_coord_Fc, y_coord_Fc),  xycoords='data',
-	            xytext=(-100, -100), textcoords='offset points',
-	            arrowprops=dict(arrowstyle="->")
-	            )	
-	
-    # Set the ticks and labels...
-    #ticks = np.linspace(0, len(xdata), 12)
-    #labels = range(ticks.size)
-    #pl.xticks(ticks, labels)  
-    
-    pl.legend(loc='upper left')
-    pl.ylabel('Cummulative Carbon flux (t C ha-1 y-1)')
-    pl.xlabel('Time (30 min intervals)')
-    pl.suptitle('Cummulative CO2 ustar plot for '+Site_ID+'_'+versionID,size=20) 
-    pl.savefig(mypathforResults+'/'+'Cummulative CO2 plot for '+Site_ID+'_'+versionID) 
-    #pl.show()
-    pl.close()    
-
-    cm = get_cmap('winter')
+    cm = get_cmap('cool')
     #Second plot Fe
     ax1=pl.figure(1, figsize=(16, 12), dpi=80, facecolor='w', edgecolor='k')
     index=0
@@ -1415,6 +1372,76 @@ def cummulative_CO2_H2O(mypathforResults,New_combined,Site_ID,startdate,enddate,
     #pl.show()
     pl.close()   
 
+def cummulative_CO2(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill,versionID,cumm_var_to_plot):    
+    print "Doing Cummulative CO2 plots for "+Site_ID
+ 
+    #First plot use ALL data and years
+    ###################################
+    #Create the Cummulative variables
+    #Define label for cummulative
+    cumm_label=cumm_var_to_plot+'_Cumm'
+    if cumm_var_to_plot=='Fc':
+	cm = get_cmap('Dark2')
+	var_input= 'Fc_ustar'
+    elif cumm_var_to_plot=='GPP':
+	cm = get_cmap('winter')
+	var_input= 'GPP_Con'
+    elif cumm_var_to_plot=='Fre':
+	cm = get_cmap('hot')
+	var_input= 'Fre_Con'    
+    
+    New_combined[cumm_label]=New_combined.groupby([lambda x: x.year])[var_input].cumsum()
+    New_combined[cumm_label]=New_combined[cumm_label]
+    
+    #get to units of g.CO2.-m-2. multiply by 44 (MW of CO2) to get g CO2
+    New_combined[cumm_label]=New_combined[cumm_label]*60*30*10000/1000000*44.01*12/44/1000000   
+
+    #Group all data by Year
+    tempdata_grouped=New_combined.groupby([lambda x: x.year])
+
+    Num_plots=len(tempdata_grouped)
+    
+    #First plot Fc
+   
+    fig = figure(1,figsize=(16, 12), dpi=80, facecolor='w', edgecolor='k')
+    ax  = fig.add_subplot(111)
+    
+    index=0
+    for name, group in tempdata_grouped:
+	plotyear=group.index[0].year
+	index=index+1
+	xdata=group[cumm_label]
+	plotyear=group.index[0].year
+	color_rgb = cm(1.*index/Num_plots)
+	ax12=pl.plot(xdata, '-', linewidth=2,color=color_rgb,label=cumm_var_to_plot+' '+str(plotyear))
+
+    index=0
+    #for name, group in tempdata_grouped:
+	#plotyear=group.index[0].year
+	#index=index+1
+	#xdata=group[cumm_label]
+	#plotyear=group.index[0].year
+	#color_rgb = cm(1.*index/Num_plots)
+	##ax12=pl.plot(xdata, '-', linewidth=2,color=color_rgb,label='Fc '+str(plotyear))
+	#x_coord_Fc=xdata[-1]
+	#y_coord_Fc=len(xdata)-1    
+	#ax.annotate('test', xy=(x_coord_Fc, y_coord_Fc),  xycoords='data',
+	            #xytext=(-100, -100), textcoords='offset points',
+	            #arrowprops=dict(arrowstyle="->")
+	            #)	
+	
+    # Set the ticks and labels...
+    #ticks = np.linspace(0, len(xdata), 12)
+    #labels = range(ticks.size)
+    #pl.xticks(ticks, labels)  
+    
+    pl.legend(loc='upper left')
+    pl.ylabel('Cummulative Carbon flux (t C ha-1 y-1)')
+    pl.xlabel('Time (30 min intervals)')
+    pl.suptitle('Cummulative CO2 ' + cumm_var_to_plot + ' plot for '+Site_ID+'_'+versionID,size=20) 
+    pl.savefig(mypathforResults+'/'+'Cummulative CO2 ' + cumm_var_to_plot + ' plot for '+Site_ID+'_'+versionID) 
+    #pl.show()
+    pl.close()    
 
 def mintimeseries_plot(mypathforResults,predicted,observed,regress,variable_to_fill, Site_ID,units,targets,output,item,versionID):    
     ANN_label=str(item+"_NN")    
@@ -1605,7 +1632,15 @@ def basic_diags(myBaseforResults,New_combined,Site_id,list_in,Ws_label,do_result
 	mypathforResults=myBaseforResults+"/Results"  	#Create directory for results
 
 	#Do cummulative water and carbon plots
-	cummulative_CO2_H2O(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill,versionID)
+	cummulative_H2O(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill,versionID)
+	cumm_var_to_plot="Fc"
+	cummulative_CO2(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill,versionID,cumm_var_to_plot)
+	cumm_var_to_plot="GPP"
+	cummulative_CO2(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill,versionID,cumm_var_to_plot)
+	cumm_var_to_plot="Fre"
+	cummulative_CO2(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill,versionID,cumm_var_to_plot)
+	cumm_var_to_plot="GPP"	
+	cummulative_CO2(mypathforResults,New_combined,Site_ID,startdate,enddate,Rain_Con_label_variable_to_fill,versionID,cumm_var_to_plot)	
 	
 	#Do time series CO2 (GPP,Re plots)
 	list_in=['Fc_ustar','GPP_Con','Fre_Con']

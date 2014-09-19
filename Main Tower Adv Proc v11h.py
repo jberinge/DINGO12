@@ -79,7 +79,7 @@ def main():
     
     #File stuff here - Get data from dropbox folder etc
     mypathforFluxdata=cf['Files']['mypathforFluxdata']+Site_ID
-    myBaseforResults=cf['Files']['mypathforFluxdata']+Site_ID+ "/Advanced"
+    myBaseforResults=cf['Files']['mypathforFluxdata']+Site_ID+ "/Advanced_"+versionID
     mypathforAWSdata=cf['Files']['mypathforAWSdata']
     mypathforGlobalSolardata=cf['Files']['mypathforGlobalSolardata']
     mypathforAWAPdata=cf['Files']['mypathforAWAPdata']

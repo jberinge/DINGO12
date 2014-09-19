@@ -391,9 +391,9 @@ def fetch_CABLE(FLUXDataframe,myBaseforResults,CABLEfilename,Site_ID,latitude,lo
     CABLEandTOWER_DF['Ts_CABLE']=((CABLEandTOWER_DF['SoilTemp_3cm_CABLE']+CABLEandTOWER_DF['SoilTemp_8cm_CABLE'])/2)-272.15    
 
     #Write out to CSV
-    CABLEandTOWER_DF.to_csv(mypathforResults+'CABLEandTOWER_DF_for_'+Site_ID+'.csv', sep=',')
+    #CABLEandTOWER_DF.to_csv(mypathforResults+'CABLEandTOWER_DF_for_'+Site_ID+'.csv', sep=',')
     # Save dataframe. 
-    CABLEandTOWER_DF.save(myBaseforResults+'CABLEandTOWER_DF_for_'+Site_ID+'.df')  
+    #CABLEandTOWER_DF.save(myBaseforResults+'CABLEandTOWER_DF_for_'+Site_ID+'.df')  
     
    
     ###########################    
